@@ -7,13 +7,9 @@ from time import perf_counter
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 from tensorflow import keras
-from MulticoreTSNE import MulticoreTSNE as TSNE
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-
-import nnproj
 
 def project(X, p):
     X_new = p.fit_transform(X)
@@ -51,6 +47,9 @@ for label, X, y in zip(['mnist-bin', 'mnist-full'],
     fig2, ax2 = plt.subplots(1, 1, figsize=(10, 10))
     fig2.tight_layout()
     for x, c in enumerate(np.unique(y_train_p)):
+        print(c)
+        print(x)
+
         ax2.axis('off')
         ax2.scatter(X_2d_pred[y_test==c,0],  X_2d_pred[y_test==c,1],  c=cmap(x), s=15, label=c, alpha=0.7)
     fig2.savefig("projection_" + label + ".png")
