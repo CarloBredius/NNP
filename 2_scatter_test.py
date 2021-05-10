@@ -218,7 +218,7 @@ class Ui_MainWindow(object):
 
     	pred = model.predict(X_test)
 
-    	items = pg.ScatterPlotItem(x=pred[:,0],  y=pred[:,1], data=y_test,
+    	items = pg.ScatterPlotItem(x=pred[:,0],  y=pred[:,1], data=np.arange(len(X_test)),
          pen='w', brush=y_test, size=10, hoverable=True, hoverPen=pg.mkPen(0, 0, 0, 255))
 
     	self.PlotWidget.addItem(items)
