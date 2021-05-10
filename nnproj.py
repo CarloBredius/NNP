@@ -4,7 +4,7 @@ from keras.initializers import Constant
 from keras.layers import Dense, Dropout
 from keras.models import Sequential
 
-def train_model(X, X_2d, loss='mean_squared_error', epochs=None):
+def train_model(X, X_2d, loss='mean_absolute_error', epochs=None):
     callbacks = []
 
     if not epochs:
