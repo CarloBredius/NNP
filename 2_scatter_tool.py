@@ -137,8 +137,8 @@ class Ui_MainWindow(object):
         def retranslateUi(self, MainWindow):
                 _translate = QtCore.QCoreApplication.translate
                 MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-                self.checkBox1.setText(_translate("MainWindow", "Perturbation1"))
-                self.checkBox2.setText(_translate("MainWindow", "Perturbation2"))
+                self.checkBox1.setText(_translate("MainWindow", "Add constant"))
+                self.checkBox2.setText(_translate("MainWindow", "Dim. removal"))
                 self.checkBox3.setText(_translate("MainWindow", "Perturbation3"))
                 self.checkBox4.setText(_translate("MainWindow", "Perturbation4"))
                 self.perturbSelectedButton.setText(_translate("MainWindow", "Randomize selected"))
@@ -171,12 +171,14 @@ class Ui_MainWindow(object):
         def slider1Changed(self):
                 new_value = self.horizontalSlider1.value()
                 self.statusbar.showMessage("Changed value of perturbation slider 1 to " + str(new_value))
-                self.dataset.addNoise(new_value)
+                self.dataset.addConstantNoise(new_value)
                 self.replot()
 
         def slider2Changed(self):
                 new_value = self.horizontalSlider2.value()
                 self.statusbar.showMessage("Changed value of perturbation slider 2 to " + str(new_value))
+                self.dataset.removeRandomDimensions(new_value)
+                self.replot()
 
         def slider3Changed(self):
                 new_value = self.horizontalSlider3.value()
