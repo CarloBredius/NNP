@@ -23,13 +23,25 @@ class Ui_MainWindow(object):
                 MainWindow.setObjectName("MainWindow")
                 MainWindow.resize(1200, 850)
 
-                # plot window
+                # Main window
                 self.centralwidget = QtWidgets.QWidget(MainWindow)
                 self.centralwidget.setObjectName("centralwidget")
-                self.PlotWidget = PlotWidget(self.centralwidget)
-                self.PlotWidget.setGeometry(QtCore.QRect(10, 10, 800, 800))
-                self.PlotWidget.setObjectName("PlotWidget")
                 MainWindow.setCentralWidget(self.centralwidget)
+
+                # Plot widget
+                self.PlotWidget = PlotWidget(self.centralwidget)
+                self.PlotWidget.setObjectName("PlotWidget")
+
+                # Graphics view
+                self.graphicsView = QtWidgets.QGraphicsView(self.centralwidget)
+                self.graphicsView.setObjectName("graphicsView")
+
+                # Stacked widget, combining plot widget and graphics view
+                self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
+                self.stackedWidget.setGeometry(QtCore.QRect(10, 10, 800, 800))
+                self.stackedWidget.setObjectName("stackedWidget")
+                self.stackedWidget.addWidget(self.PlotWidget)
+                self.stackedWidget.addWidget(self.graphicsView)
 
                 # Perturbation title
                 self.perturbationSlidersLabel = QtWidgets.QLabel(self.centralwidget)
@@ -39,7 +51,7 @@ class Ui_MainWindow(object):
                 self.perturbationSlidersLabel.setFont(font)
                 self.perturbationSlidersLabel.setObjectName("perturbation_title")
 
-                # perturbation 1
+                # Perturbation 1
                 self.horizontalSlider1 = QtWidgets.QSlider(self.centralwidget)
                 self.horizontalSlider1.setGeometry(QtCore.QRect(920, 80, 270, 20))
                 self.horizontalSlider1.setMaximum(100)
@@ -52,7 +64,7 @@ class Ui_MainWindow(object):
                 self.checkBox1.setTristate(False)
                 self.checkBox1.setObjectName("checkBox1")
 
-                # perturbation 2
+                # Perturbation 2
                 self.horizontalSlider2 = QtWidgets.QSlider(self.centralwidget)
                 self.horizontalSlider2.setGeometry(QtCore.QRect(920, 130, 270, 20))
                 self.horizontalSlider2.setMaximum(100)
@@ -64,7 +76,7 @@ class Ui_MainWindow(object):
                 self.checkBox2.setGeometry(QtCore.QRect(830, 130, 90, 20))
                 self.checkBox2.setObjectName("checkBox2")
 
-                # perturbation 3
+                # Perturbation 3
                 self.horizontalSlider3 = QtWidgets.QSlider(self.centralwidget)
                 self.horizontalSlider3.setGeometry(QtCore.QRect(920, 180, 270, 20))
                 self.horizontalSlider3.setMaximum(100)
@@ -76,7 +88,7 @@ class Ui_MainWindow(object):
                 self.checkBox3.setGeometry(QtCore.QRect(830, 180, 90, 20))
                 self.checkBox3.setObjectName("checkBox3")
 
-                # perturbation 4
+                # Perturbation 4
                 self.horizontalSlider4 = QtWidgets.QSlider(self.centralwidget)
                 self.horizontalSlider4.setGeometry(QtCore.QRect(920, 230, 270, 20))
                 self.horizontalSlider4.setMaximum(100)
@@ -114,10 +126,13 @@ class Ui_MainWindow(object):
 
                 self.viewsBasic = QtWidgets.QAction(MainWindow)
                 self.viewsBasic.setObjectName("viewsBasic")
+                self.viewsBasic.triggered.connect(lambda: self.switchWidget(0))
                 self.viewsTrail = QtWidgets.QAction(MainWindow)
                 self.viewsTrail.setObjectName("viewsTrail")
                 self.viewsHeatmap = QtWidgets.QAction(MainWindow)
                 self.viewsHeatmap.setObjectName("viewsHeatmap")
+                self.viewsHeatmap.triggered.connect(lambda: self.switchWidget(1))
+
                 self.fileReset = QtWidgets.QAction(MainWindow)
                 self.fileReset.setObjectName("fileReset")
                 #self.fileReset.action.connect(self.reset)
@@ -159,6 +174,9 @@ class Ui_MainWindow(object):
                 self.fileReset.setShortcut(_translate("MainWindow", "Ctrl+R"))
                 self.fileSave.setText(_translate("MainWindow", "Save"))
                 self.fileSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
+
+        def switchWidget(self, index):
+        	self.stackedWidget.setCurrentIndex(index)
 
         def replot(self):
                 pred = self.model.predict(self.dataset.perturbed)
