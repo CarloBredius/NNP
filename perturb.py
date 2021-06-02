@@ -39,4 +39,20 @@ class Dataset:
 
         self.combinePerturbations()
 
+    def perturbAll(self, amount):
+        pass
 
+    # For a chosen perturbation
+    # Compute the intermediate datasets from 0 to given value and add them to a list
+    def interDataOfPerturb(self, perturbation, maxValue):
+        self.interDataset = [self.raw]
+
+        for i in range(1, maxValue):
+            functionSwitch = {
+                0: self.perturbAll(i),
+                1: self.addConstantNoise(i),
+                2: self.removeRandomDimensions(i)
+            }
+            functionSwitch.get(perturbation, "No slider with index " + str(perturbation) + " found!")
+
+            self.interDataset.append(self.perturbed)
