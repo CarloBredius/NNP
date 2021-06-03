@@ -33,8 +33,8 @@ class Ui_MainWindow(object):
                 MainWindow.setCentralWidget(self.centralwidget)
 
                 # Plot widget
-                self.PlotWidget = PlotWidget(self.centralwidget)
-                self.PlotWidget.setObjectName("PlotWidget")
+                self.plotWidget = PlotWidget(self.centralwidget)
+                self.plotWidget.setObjectName("PlotWidget")
 
                 # Trails view
                 self.trailsScene = QGraphicsScene()
@@ -54,7 +54,7 @@ class Ui_MainWindow(object):
                 self.stackedWidget = QStackedWidget(self.centralwidget)
                 self.stackedWidget.setGeometry(QRect(10, 10, 800, 800))
                 self.stackedWidget.setObjectName("stackedWidget")
-                self.stackedWidget.addWidget(self.PlotWidget)
+                self.stackedWidget.addWidget(self.plotWidget)
                 self.stackedWidget.addWidget(self.trailsView)
                 self.stackedWidget.addWidget(self.heatmapView)
                 self.stackedWidget.addWidget(self.openGLWidget)
@@ -121,13 +121,13 @@ class Ui_MainWindow(object):
                 self.perturbSelectedButton.setGeometry(QRect(830, 300, 150, 50))
                 self.perturbSelectedButton.setObjectName("perturbSelectedButton")
                 self.perturbSelectedButton.setToolTip("Randomly set all checked perturbations")
-                self.perturbSelectedButton.clicked.connect(self.perturbSelected)
+                self.perturbSelectedButton.clicked.connect(self.randChangeSelected)
 
                 self.reset = QPushButton(self.centralwidget)
                 self.reset.setGeometry(QRect(1000, 300, 110, 50))
                 self.reset.setObjectName("reset_button")
                 self.reset.setToolTip("Set all checked perturbations back to 0")
-                self.reset.clicked.connect(self.resetSliders)
+                self.reset.clicked.connect(self.resetSelected)
 
                 # Menubar items
                 self.menubar = QMenuBar(MainWindow)
@@ -218,7 +218,9 @@ class Ui_MainWindow(object):
                 self.projectHeatMap()
                 self.statusbar.showMessage("Heat map projected.")
             if index == 3:
+                self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
                 self.computeIntermediateDatasets()
+                self.statusbar.showMessage("Drawing trail map...")
                 if self.predList:
                     self.openGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
                 else:
@@ -226,24 +228,26 @@ class Ui_MainWindow(object):
                     self.statusbar.showMessage("No data to create trail map with.")
 
         def computeIntermediateDatasets(self):
-            self.predList = []
-            # If noise perturbation is selected
+            # If no checkbox is checked
+            if not self.checkBox1.isChecked() and not self.checkBox2.isChecked() and \
+                    not self.checkBox3.isChecked() and not self.checkBox4.isChecked():
+                self.statusbar.showMessage("No perturbation is selected. Please choose one of them.")
+                return
+
+            print("Computing intermediate datasets")
+            # Perturb using the checked perturbation
             if self.checkBox1.isChecked():
-                maxValue = self.horizontalSlider1.value()
-                # Perturb the dataset per increment
-                self.dataset.interDataOfPerturb(1, maxValue)
-
-                # Predict every dataset and save to predList
-                for i in range(1, maxValue):
-                    #QpointF(self.trailsView.mapToScene(self.dataset.interDataset[i]))
-                    self.predList.append(self.model.predict(self.dataset.interDataset[i]))
-
-            # If dimension removal perturbation is selected
+                max_value = self.horizontalSlider1.value()
+                self.dataset.interDataOfPerturb(1, max_value)
             if self.checkBox2.isChecked():
-                maxValue = self.horizontalSlider2.value()
-                # Perturb the dataset per increment
-                self.dataset.interDataOfPerturb(2, maxValue)
-                pred = self.model.predict(self.dataset.interDataset)
+                max_value = self.horizontalSlider2.value()
+                self.dataset.interDataOfPerturb(2, max_value)
+
+
+            # Predict every dataset and save to predList
+            self.predList = []
+            for i in range(0, len(self.dataset.interDataset)):
+                self.predList.append(self.model.predict(self.dataset.interDataset[i]))
 
         # Project a trail map using the data in predList
         def projectTrailMap(self):
@@ -254,7 +258,7 @@ class Ui_MainWindow(object):
                     y1 = self.predList[i][j][1]
                     x2 = self.predList[i + 1][j][0]
                     y2 = self.predList[i + 1][j][1]
-                    self.trailsScene.addLine(self.predList[i][j][0], self.predList[i][j][1], self.predList[i + 1][j][0], self.predList[i + 1][j][1], pen)
+                    self.trailsScene.addLine(x1, y1, x2, y2, pen)
 
             # Fit trail map to screen
             # self.trailsScene.itemsBoundingRect()
@@ -267,8 +271,12 @@ class Ui_MainWindow(object):
                 pred = self.model.predict(self.dataset.perturbed)
                 items = pg.ScatterPlotItem(x=pred[:,0],  y=pred[:,1], data=np.arange(len(self.dataset.perturbed)),
                  pen='w', brush=self.brushes, size=10, hoverable=True, hoverPen=pg.mkPen(0, 0, 0, 255))
-                self.PlotWidget.clear()
-                self.PlotWidget.addItem(items)
+                self.plotWidget.clear()
+                self.plotWidget.addItem(items)
+                # Disable range adjustments
+                self.plotWidget.setRange(None, (0, 1),(0, 1))
+
+                self.plotWidget.setXRange(0, 1)
 
         def slider1Changed(self):
                 new_value = self.horizontalSlider1.value()
@@ -290,7 +298,7 @@ class Ui_MainWindow(object):
                 new_value = self.horizontalSlider4.value()
                 self.statusbar.showMessage("Changed value of perturbation slider 4 to " + str(new_value))
 
-        def perturbSelected(self):
+        def randChangeSelected(self):
                 if self.checkBox1.isChecked():
                         self.horizontalSlider1.setValue(randint(1, self.horizontalSlider2.maximum()))
                 if self.checkBox2.isChecked():
@@ -300,7 +308,7 @@ class Ui_MainWindow(object):
                 if self.checkBox4.isChecked():
                         self.horizontalSlider4.setValue(randint(1, self.horizontalSlider4.maximum()))
 
-        def resetSliders(self):
+        def resetSelected(self):
                 if self.checkBox1.isChecked():
                         self.horizontalSlider1.setValue(0)
                 if self.checkBox2.isChecked():
@@ -318,7 +326,7 @@ class Ui_MainWindow(object):
             brush = pg.mkBrush(50, 200, 50, 120)
             hoverBrush = pg.mkBrush(200, 50, 50, 200)
             items = pg.ScatterPlotItem(x=x, y=y, pen='w', brush=brush, size=15, hoverable=True, hoverBrush=hoverBrush)
-            self.PlotWidget.addItem(items)
+            self.plotWidget.addItem(items)
 
         def loadData(self, MainWindow):
             print("Loading datasets...")
@@ -327,16 +335,16 @@ class Ui_MainWindow(object):
             label = "mnist-full"
 
             X_train, X_test, y_train, y_test = train_test_split(X, y,
-             train_size=10000, test_size=3000, random_state=420, stratify=y)
+             train_size=10000, test_size=300, random_state=420, stratify=y)
             self.y_test = y_test
 
             # Class colors
-            self.class_colors = [(0.651, 0.808, 0.890),
+            self.class_colors = [(0.890, 0.102, 0.110),
                                  (0.122, 0.471, 0.706),
                                  (0.698, 0.875, 0.541),
                                  (0.200, 0.627, 0.173),
                                  (0.984, 0.604, 0.600),
-                                 (0.890, 0.102, 0.110),
+                                 (0.651, 0.808, 0.890),
                                  (0.992, 0.749, 0.435),
                                  (1.000, 0.498, 0.000),
                                  (0.792, 0.698, 0.839),
@@ -358,7 +366,7 @@ class Ui_MainWindow(object):
             items = pg.ScatterPlotItem(x=pred[:,0],  y=pred[:,1], data=np.arange(len(X_test)),
                  pen='w', brush=self.brushes, size=10, hoverable=True, hoverPen=pg.mkPen(0, 0, 0, 255))
 
-            self.PlotWidget.addItem(items)
+            self.plotWidget.addItem(items)
 
 
 if __name__ == "__main__":

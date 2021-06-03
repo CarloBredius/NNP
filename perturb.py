@@ -17,10 +17,8 @@ class Dataset:
         # Handle non-active dimensions
         for i in self.nonActiveDims:
             self.perturbed[:, i] = 0
-        #print(self.perturbed[0])
 
     def addConstantNoise(self, amount):
-
         self.noise = 0.01 * amount
         self.combinePerturbations()
 
@@ -45,14 +43,16 @@ class Dataset:
     # For a chosen perturbation
     # Compute the intermediate datasets from 0 to given value and add them to a list
     def interDataOfPerturb(self, perturbation, maxValue):
-        self.interDataset = [self.raw]
+        self.interDataset = []
 
-        for i in range(1, maxValue):
-            functionSwitch = {
-                0: self.perturbAll(i),
-                1: self.addConstantNoise(i),
-                2: self.removeRandomDimensions(i)
-            }
-            functionSwitch.get(perturbation, "No slider with index " + str(perturbation) + " found!")
-
+        for i in range(0, maxValue):
+            # match token coming in python 3.10
+            if perturbation == 0:
+                self.perturbAll(i)
+            elif perturbation == 1:
+                self.addConstantNoise(i)
+            elif perturbation == 2:
+                self.removeRandomDimensions(i)
+            else:
+                print("No perturbation found with index " + str(i))
             self.interDataset.append(self.perturbed)
