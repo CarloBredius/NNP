@@ -221,7 +221,7 @@ class Ui_MainWindow(object):
                 self.computeIntermediateDatasets()
                 self.statusbar.showMessage("Drawing heat map...")
                 if self.predList:
-                    self.heatGLWidget.paintHeatMapGL(self.predList, self.y_test, self.class_colors)
+                    self.heatGLWidget.createHeatMatrix(self.predList) #, self.y_test, self.class_colors)
                 else:
                     print("No data to create heat map with.")
                     self.statusbar.showMessage("No data to create heat map with.")
