@@ -12,7 +12,7 @@ import sys
 from random import randint
 
 from perturb import *
-from visualize import *
+from trails import *
 
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
                 self.heatmapView.setObjectName("heatmapView")
 
                 # OpenGL widget
-                self.openGLWidget = OpenGLWidget()
+                self.openGLWidget = TrailsGLWidget()
                 self.openGLWidget.setObjectName("openGLView")
 
                 # Stacked widget, combining plot widget and graphics view
@@ -55,9 +55,9 @@ class Ui_MainWindow(object):
                 self.stackedWidget.setGeometry(QRect(10, 10, 800, 800))
                 self.stackedWidget.setObjectName("stackedWidget")
                 self.stackedWidget.addWidget(self.plotWidget)
-                self.stackedWidget.addWidget(self.trailsView)
-                self.stackedWidget.addWidget(self.heatmapView)
                 self.stackedWidget.addWidget(self.openGLWidget)
+                self.stackedWidget.addWidget(self.heatmapView)
+                self.stackedWidget.addWidget(self.trailsView)
 
                 # Perturbation title
                 self.perturbationSlidersLabel = QLabel(self.centralwidget)
@@ -145,15 +145,15 @@ class Ui_MainWindow(object):
                 self.viewsBasic = QAction(MainWindow)
                 self.viewsBasic.setObjectName("viewsBasic")
                 self.viewsBasic.triggered.connect(lambda: self.switchWidget(0))
-                self.viewsTrail = QAction(MainWindow)
-                self.viewsTrail.setObjectName("viewsTrail")
-                self.viewsTrail.triggered.connect(lambda: self.switchWidget(1))
+                self.viewsOpenGL = QAction(MainWindow)
+                self.viewsOpenGL.setObjectName("viewsOpenGL")
+                self.viewsOpenGL.triggered.connect(lambda: self.switchWidget(1))
                 self.viewsHeatmap = QAction(MainWindow)
                 self.viewsHeatmap.setObjectName("viewsHeatmap")
                 self.viewsHeatmap.triggered.connect(lambda: self.switchWidget(2))
-                self.viewsOpenGL = QAction(MainWindow)
-                self.viewsOpenGL.setObjectName("viewsOpenGL")
-                self.viewsOpenGL.triggered.connect(lambda: self.switchWidget(3))
+                self.viewsTrail = QAction(MainWindow)
+                self.viewsTrail.setObjectName("viewsTrail")
+                self.viewsTrail.triggered.connect(lambda: self.switchWidget(3))
 
                 self.fileReset = QAction(MainWindow)
                 self.fileReset.setObjectName("fileReset")
@@ -163,9 +163,9 @@ class Ui_MainWindow(object):
                 self.menuFile.addAction(self.fileReset)
                 self.menuFile.addAction(self.fileSave)
                 self.menuViews.addAction(self.viewsBasic)
-                self.menuViews.addAction(self.viewsTrail)
-                self.menuViews.addAction(self.viewsHeatmap)
                 self.menuViews.addAction(self.viewsOpenGL)
+                self.menuViews.addAction(self.viewsHeatmap)
+                self.menuViews.addAction(self.viewsTrail)
 
                 self.menubar.addAction(self.menuFile.menuAction())
                 self.menubar.addAction(self.menuViews.menuAction())
@@ -189,12 +189,13 @@ class Ui_MainWindow(object):
 
                 self.viewsBasic.setText(_translate("MainWindow", "Basic interface"))
                 self.viewsBasic.setShortcut(_translate("MainWindow", "Ctrl+1"))
-                self.viewsTrail.setText(_translate("MainWindow", "Trail interface"))
-                self.viewsTrail.setShortcut(_translate("MainWindow", "Ctrl+2"))
+                self.viewsOpenGL.setText(_translate("MainWindow", "Trails interface"))
+                self.viewsOpenGL.setShortcut(_translate("MainWindow", "Ctrl+2"))
                 self.viewsHeatmap.setText(_translate("MainWindow", "Heat map interface"))
                 self.viewsHeatmap.setShortcut(_translate("MainWindow", "Ctrl+3"))
-                self.viewsOpenGL.setText(_translate("MainWindow", "OpenGL interface"))
-                self.viewsOpenGL.setShortcut(_translate("MainWindow", "Ctrl+4"))
+                self.viewsTrail.setText(_translate("MainWindow", "Trails graphicsview"))
+                self.viewsTrail.setShortcut(_translate("MainWindow", "Ctrl+4"))
+
 
                 self.fileReset.setText(_translate("MainWindow", "Reset"))
                 self.fileReset.setShortcut(_translate("MainWindow", "Ctrl+R"))
@@ -209,8 +210,11 @@ class Ui_MainWindow(object):
                 self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
                 self.computeIntermediateDatasets()
                 self.statusbar.showMessage("Drawing trail map...")
-                self.projectTrailMap()
-                self.statusbar.showMessage("Trail map projected.")
+                if self.predList:
+                    self.openGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
+                else:
+                    print("No data to create trail map with.")
+                    self.statusbar.showMessage("No data to create trail map with.")
             if index == 2:
                 self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
                 self.computeIntermediateDatasets()
@@ -221,11 +225,8 @@ class Ui_MainWindow(object):
                 self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
                 self.computeIntermediateDatasets()
                 self.statusbar.showMessage("Drawing trail map...")
-                if self.predList:
-                    self.openGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
-                else:
-                    print("No data to create trail map with.")
-                    self.statusbar.showMessage("No data to create trail map with.")
+                self.projectTrailMap()
+                self.statusbar.showMessage("Trail map projected.")
 
         def computeIntermediateDatasets(self):
             # If no checkbox is checked

@@ -7,7 +7,7 @@ try:
 except ImportError:
     print("OpenGL must be installed to run this program.")
 
-class OpenGLWidget(QOpenGLWidget):
+class TrailsGLWidget(QOpenGLWidget):
     def initializeGL(self):
         print("Initalize openGL")
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
