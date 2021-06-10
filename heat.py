@@ -7,9 +7,9 @@ try:
 except ImportError:
     print("OpenGL must be installed to run this program.")
 
-class TrailsGLWidget(QOpenGLWidget):
+class HeatGLWidget(QOpenGLWidget):
     def initializeGL(self):
-        print("Initalize openGL for trail map")
+        print("Initalize openGL for heat map")
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
         self.rotX = 0
         self.rotY = 0
@@ -46,25 +46,27 @@ class TrailsGLWidget(QOpenGLWidget):
             self.update()
 
     def paintGL(self):
-        self.paintTrailMapGL(self.pred_list, self.labels, self.class_colors)
+        self.paintHeatMapGL(self.pred_list, self.labels, self.class_colors)
 
-    def paintTrailMapGL(self, pred_list, labels, class_colors):
-        print("Painting trail map")
+    def paintHeatMapGL(self, pred_list, labels, class_colors):
+        print("Painting heat map")
         self.pred_list = pred_list
         self.labels = labels
         self.class_colors = class_colors
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-        # Loop over every spot
-        for j in range(len(pred_list[0])):
-            GL.glColor(class_colors[labels[j]])
-            GL.glBegin(GL.GL_LINES)
-            # Loop over every location of the spot
-            for i in range(len(pred_list) - 1):
-                # OpenGL needs a start and an endpoint, hence why some points will be added twice
-                GL.glVertex2f(pred_list[i][j][0], pred_list[i][j][1])
-                GL.glVertex2f(pred_list[i + 1][j][0], pred_list[i + 1][j][1])
-            GL.glEnd()
+        # TODO: implement heat map here
+        GL.glColor(0.5, 0.3, 0.8)
+        GL.glBegin(GL.GL_LINES)
+        GL.glVertex2f(0.3, 0.3)
+        GL.glVertex2f(0.3, 0.4)
+        GL.glVertex2f(0.3, 0.4)
+        GL.glVertex2f(0.4, 0.4)
+        GL.glVertex2f(0.4, 0.4)
+        GL.glVertex2f(0.4, 0.3)
+        GL.glVertex2f(0.4, 0.3)
+        GL.glVertex2f(0.3, 0.3)
+        GL.glEnd()
 
         # Handle translation
         if self.rotX != 0 or self.rotY != 0:

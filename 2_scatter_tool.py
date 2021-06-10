@@ -13,6 +13,7 @@ from random import randint
 
 from perturb import *
 from trails import *
+from heat import *
 
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
@@ -36,27 +37,27 @@ class Ui_MainWindow(object):
                 self.plotWidget = PlotWidget(self.centralwidget)
                 self.plotWidget.setObjectName("PlotWidget")
 
-                # Trails view
+                # trails widget using OpenGL
+                self.trailsGLWidget = TrailsGLWidget()
+                self.trailsGLWidget.setObjectName("trailsGLView")
+
+                # Heatmap view
+                self.heatGLWidget = HeatGLWidget()
+                self.heatGLWidget.setObjectName("heatGLView")
+
+                # Trails view using graphicsScene
                 self.trailsScene = QGraphicsScene()
                 self.trailsView = QGraphicsView(self.trailsScene, self.centralwidget)
                 self.trailsView.setObjectName("trailsView")
 
-                # Heatmap view
-                self.heatmapScene = QGraphicsScene()
-                self.heatmapView = QGraphicsView(self.heatmapScene, self.centralwidget)
-                self.heatmapView.setObjectName("heatmapView")
-
-                # OpenGL widget
-                self.openGLWidget = TrailsGLWidget()
-                self.openGLWidget.setObjectName("openGLView")
 
                 # Stacked widget, combining plot widget and graphics view
                 self.stackedWidget = QStackedWidget(self.centralwidget)
                 self.stackedWidget.setGeometry(QRect(10, 10, 800, 800))
                 self.stackedWidget.setObjectName("stackedWidget")
                 self.stackedWidget.addWidget(self.plotWidget)
-                self.stackedWidget.addWidget(self.openGLWidget)
-                self.stackedWidget.addWidget(self.heatmapView)
+                self.stackedWidget.addWidget(self.trailsGLWidget)
+                self.stackedWidget.addWidget(self.heatGLWidget)
                 self.stackedWidget.addWidget(self.trailsView)
 
                 # Perturbation title
@@ -146,10 +147,10 @@ class Ui_MainWindow(object):
                 self.viewsBasic.setObjectName("viewsBasic")
                 self.viewsBasic.triggered.connect(lambda: self.switchWidget(0))
                 self.viewsOpenGL = QAction(MainWindow)
-                self.viewsOpenGL.setObjectName("viewsOpenGL")
+                self.viewsOpenGL.setObjectName("viewsTrailGL")
                 self.viewsOpenGL.triggered.connect(lambda: self.switchWidget(1))
                 self.viewsHeatmap = QAction(MainWindow)
-                self.viewsHeatmap.setObjectName("viewsHeatmap")
+                self.viewsHeatmap.setObjectName("viewsHeatGL")
                 self.viewsHeatmap.triggered.connect(lambda: self.switchWidget(2))
                 self.viewsTrail = QAction(MainWindow)
                 self.viewsTrail.setObjectName("viewsTrail")
@@ -211,7 +212,7 @@ class Ui_MainWindow(object):
                 self.computeIntermediateDatasets()
                 self.statusbar.showMessage("Drawing trail map...")
                 if self.predList:
-                    self.openGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
+                    self.trailsGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
                 else:
                     print("No data to create trail map with.")
                     self.statusbar.showMessage("No data to create trail map with.")
@@ -219,8 +220,11 @@ class Ui_MainWindow(object):
                 self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
                 self.computeIntermediateDatasets()
                 self.statusbar.showMessage("Drawing heat map...")
-                self.projectHeatMap()
-                self.statusbar.showMessage("Heat map projected.")
+                if self.predList:
+                    self.heatGLWidget.paintHeatMapGL(self.predList, self.y_test, self.class_colors)
+                else:
+                    print("No data to create heat map with.")
+                    self.statusbar.showMessage("No data to create heat map with.")
             if index == 3:
                 self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
                 self.computeIntermediateDatasets()
@@ -244,13 +248,12 @@ class Ui_MainWindow(object):
                 max_value = self.horizontalSlider2.value()
                 self.dataset.interDataOfPerturb(2, max_value)
 
-
             # Predict every dataset and save to predList
             self.predList = []
             for i in range(0, len(self.dataset.interDataset)):
                 self.predList.append(self.model.predict(self.dataset.interDataset[i]))
 
-        # Project a trail map using the data in predList
+        # Project a trail map using the data in predList and a grahicsScene
         def projectTrailMap(self):
             for j in range(len(self.predList[0])):
                 pen = pg.mkPen(color = self.y_test[j], width = 1)
@@ -264,9 +267,6 @@ class Ui_MainWindow(object):
             # Fit trail map to screen
             # self.trailsScene.itemsBoundingRect()
             self.trailsView.fitInView(0, 0, 1, 1, Qt.KeepAspectRatio)
-
-        def projectHeatMap(selfs):
-            pass
 
         def replot(self):
                 pred = self.model.predict(self.dataset.perturbed)
