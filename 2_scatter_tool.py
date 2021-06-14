@@ -68,7 +68,7 @@ class Ui_MainWindow(object):
                 self.perturbationSlidersLabel.setFont(font)
                 self.perturbationSlidersLabel.setObjectName("perturbation_title")
 
-                # Perturbation 1
+                # Noise
                 self.horizontalSlider1 = QSlider(self.centralwidget)
                 self.horizontalSlider1.setGeometry(QRect(920, 80, 270, 20))
                 self.horizontalSlider1.setMaximum(100)
@@ -81,7 +81,7 @@ class Ui_MainWindow(object):
                 self.checkBox1.setTristate(False)
                 self.checkBox1.setObjectName("checkBox1")
 
-                # Perturbation 2
+                # Dimension removal
                 self.horizontalSlider2 = QSlider(self.centralwidget)
                 self.horizontalSlider2.setGeometry(QRect(920, 130, 270, 20))
                 self.horizontalSlider2.setMaximum(100)
@@ -129,6 +129,24 @@ class Ui_MainWindow(object):
                 self.reset.setObjectName("reset_button")
                 self.reset.setToolTip("Set all checked perturbations back to 0")
                 self.reset.clicked.connect(self.resetSelected)
+
+                # Heat map options
+                self.heatmapInterpSliderLabel = QLabel(self.centralwidget)
+                self.heatmapInterpSliderLabel.setGeometry(QRect(920, 390, 170, 20))
+                font = QFont()
+                font.setPointSize(10)
+                self.heatmapInterpSliderLabel.setFont(font)
+                self.heatmapInterpSliderLabel.setObjectName("Interpolate threshold")
+                self.heatmapInterpSliderLabel.setVisible(False)
+
+                self.heatmapInterpSlider = QSlider(self. centralwidget)
+                self.heatmapInterpSlider.setGeometry(QRect(860, 420, 270, 20))
+                self.heatmapInterpSlider.setMaximum(99)
+                self.heatmapInterpSlider.setOrientation(Qt.Horizontal)
+                self.heatmapInterpSlider.setInvertedAppearance(False)
+                self.heatmapInterpSlider.setObjectName("heatmapInterpSlider")
+                self.heatmapInterpSlider.valueChanged.connect(self.heatmapInterpSliderChanged)
+                self.heatmapInterpSlider.setVisible(False)
 
                 # Menubar items
                 self.menubar = QMenuBar(MainWindow)
@@ -184,6 +202,7 @@ class Ui_MainWindow(object):
                 self.perturbSelectedButton.setText(_translate("MainWindow", "Randomize selected"))
                 self.reset.setText(_translate("MainWindow", "Reset"))
                 self.perturbationSlidersLabel.setText(_translate("MainWindow", "Perturbation sliders"))
+                self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
 
                 self.menuFile.setTitle(_translate("MainWindow", "File"))
                 self.menuViews.setTitle(_translate("MainWindow", "Views"))
@@ -196,7 +215,6 @@ class Ui_MainWindow(object):
                 self.viewsHeatmap.setShortcut(_translate("MainWindow", "Ctrl+3"))
                 self.viewsTrail.setText(_translate("MainWindow", "Trails graphicsview"))
                 self.viewsTrail.setShortcut(_translate("MainWindow", "Ctrl+4"))
-
 
                 self.fileReset.setText(_translate("MainWindow", "Reset"))
                 self.fileReset.setShortcut(_translate("MainWindow", "Ctrl+R"))
@@ -225,6 +243,11 @@ class Ui_MainWindow(object):
                 else:
                     print("No data to create heat map with.")
                     self.statusbar.showMessage("No data to create heat map with.")
+                self.heatmapInterpSliderLabel.setVisible(True)
+                self.heatmapInterpSlider.setVisible(True)
+            else:
+                self.heatmapInterpSliderLabel.setVisible(False)
+                self.heatmapInterpSlider.setVisible(False)
             if index == 3:
                 self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
                 self.computeIntermediateDatasets()
@@ -298,6 +321,12 @@ class Ui_MainWindow(object):
         def slider4Changed(self):
                 new_value = self.horizontalSlider4.value()
                 self.statusbar.showMessage("Changed value of perturbation slider 4 to " + str(new_value))
+
+        def heatmapInterpSliderChanged(self):
+            new_value = self.heatmapInterpSlider.value()
+            self.statusbar.showMessage("Interpolate value of heat map changed to  " + str(new_value))
+            self.heatGLWidget.maxInterpValue = 1 - new_value * 0.01
+            self.heatGLWidget.update()
 
         def randChangeSelected(self):
                 if self.checkBox1.isChecked():
