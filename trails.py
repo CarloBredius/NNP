@@ -58,21 +58,26 @@ class TrailsGLWidget(QOpenGLWidget):
         self.class_colors = class_colors
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         opacity_stepsize = 1 / len(pred_list)
+        thickness_interval = len(pred_list) / 5
 
         # Loop over every spot
         for j in range(len(pred_list[0])):
-            opacity = 0
+            # first iteration will put thickness at 1, so this works
+            line_thickness = 0
             color = class_colors[labels[j]]
-
-            GL.glBegin(GL.GL_LINES)
+            counter = 0
             # Loop over every location of the spot
             for i in range(len(pred_list) - 1):
-                GL.glColor4f(color[0],  color[1], color[2], opacity)
+                if counter % thickness_interval == 0:
+                    line_thickness += 1
+                    GL.glLineWidth(line_thickness)
+                GL.glColor4f(color[0],  color[1], color[2], counter * opacity_stepsize)
                 # OpenGL needs a start and an endpoint, hence why some points will be added twice
+                GL.glBegin(GL.GL_LINES)
                 GL.glVertex2f(pred_list[i][j][0], pred_list[i][j][1])
                 GL.glVertex2f(pred_list[i + 1][j][0], pred_list[i + 1][j][1])
-                opacity += opacity_stepsize
-            GL.glEnd()
+                GL.glEnd()
+                counter += 1
 
         # Handle translation
         if self.rotX != 0 or self.rotY != 0:
