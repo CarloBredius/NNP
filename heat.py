@@ -54,7 +54,6 @@ class HeatGLWidget(QOpenGLWidget):
         square_size = 1 / self.array_size
         for j in range(self.array_size):
             for i in range(self.array_size):
-                # TODO: maybe use a third of the max_value
                 interpolate_value = self.heat_array[i, j] / (self.maxInterpValue * self.max_value)
 
                 GL.glColor(1, 1 - interpolate_value, 1 - interpolate_value)
@@ -110,14 +109,14 @@ class HeatGLWidget(QOpenGLWidget):
         self.heat_array = np.zeros((self.array_size, self.array_size))
         for j in range(len(pred_list[0])):
             # Loop over every location of the spot
-            for i in range(len(pred_list) - 1):
+            for i in range(len(pred_list)):
                 p1 = int(pred_list[i][j][0] * self.array_size), int(pred_list[i][j][1] * self.array_size)
-                p2 = int(pred_list[i + 1][j][0] * self.array_size), int(pred_list[i + 1][j][1] * self.array_size)
-                traversed = self.rayTrace(p1, p2)
-                for cell in traversed:
-                    self.heat_array[cell] += 1
+                #p2 = int(pred_list[i + 1][j][0] * self.array_size), int(pred_list[i + 1][j][1] * self.array_size)
+                #traversed = self.rayTrace(p1, p2)
+                #for cell in traversed:
+                #    self.heat_array[cell] += 1
                 #self.printarray(self.heat_array)
-                #self.heat_array[p1] += 1
+                self.heat_array[p1] += 1
         self.max_value = np.amax(self.heat_array)
 
     def printarray(self, array):

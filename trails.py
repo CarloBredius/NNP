@@ -10,6 +10,9 @@ except ImportError:
 class TrailsGLWidget(QOpenGLWidget):
     def initializeGL(self):
         print("Initalize openGL for trail map")
+        # enable the use of transparency
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
         self.rotX = 0
         self.rotY = 0
@@ -54,16 +57,21 @@ class TrailsGLWidget(QOpenGLWidget):
         self.labels = labels
         self.class_colors = class_colors
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        opacity_stepsize = 1 / len(pred_list)
 
         # Loop over every spot
         for j in range(len(pred_list[0])):
-            GL.glColor(class_colors[labels[j]])
+            opacity = 0
+            color = class_colors[labels[j]]
+
             GL.glBegin(GL.GL_LINES)
             # Loop over every location of the spot
             for i in range(len(pred_list) - 1):
+                GL.glColor4f(color[0],  color[1], color[2], opacity)
                 # OpenGL needs a start and an endpoint, hence why some points will be added twice
                 GL.glVertex2f(pred_list[i][j][0], pred_list[i][j][1])
                 GL.glVertex2f(pred_list[i + 1][j][0], pred_list[i + 1][j][1])
+                opacity += opacity_stepsize
             GL.glEnd()
 
         # Handle translation
