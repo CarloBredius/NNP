@@ -1,5 +1,7 @@
-from PyQt5.QtWidgets import *
+import cmath
 import numpy as np
+
+from PyQt5.QtWidgets import *
 
 try:
     import OpenGL.GL as GL
@@ -10,7 +12,7 @@ class HeatGLWidget(QOpenGLWidget):
     def initializeGL(self):
         print("Initalize openGL for heat map")
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
-        self.heat_array = None
+        self.pred_list = None
         self.maxInterpValue = 1.0
         self.rotX = 0
         self.rotY = 0
@@ -46,24 +48,40 @@ class HeatGLWidget(QOpenGLWidget):
             self.zoom -= 0.1
             self.update()
 
+    def Euclidean(self, p1, p2):
+        return cmath.sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1] - p1[1], 2))
+
+    def findnearestneighbours(self, point, radius):
+        amount = 0
+        # do not look outside of range
+        for j in range(len(self.pred_list[0])):
+            for i in range(len(self.pred_list)):
+                point2 = self.pred_list[i][j]
+                if abs(point[0] - point2[0] * 100) > radius or abs(point[1] - point2[1] * 100) > radius:
+                    # Early out
+                    continue
+                # TODO: Optimize, compare against squared radius, so no need to use sqrt in eucl_dist
+                eucl_dist = self.Euclidean(point, (int(point2[0] * 100), int(point2[1] * 100)))
+                if eucl_dist.real < radius:
+                    amount += 1
+        return amount
+
     def paintGL(self):
-        if self.heat_array is None:
-            print("No array to paint")
-            return
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+        # Create data buffer with 0 for every color channel
+        data = [0 for _ in range(0, self.height() * self.width() * 3)]
+        # Iterate over every pixel
+        for x in range(self.width()):
+            for y in range(self.height()):
+                # determine location in byte buffer
+                amount = self.findnearestneighbours((x, y), 5)
+                loc = 3 * (x + y * self.width())
+                interp_value = amount / self.maxInterpValue
+                data[loc] = 255
+                data[loc + 1] = max(255 - amount, 0) #int(1 - interp_value) * 255
+                data[loc + 2] = max(255 - amount, 0) #int(1 - interp_value) * 255
 
-        square_size = 1 / self.array_size
-        for j in range(self.array_size):
-            for i in range(self.array_size):
-                interpolate_value = self.heat_array[i, j] / (self.maxInterpValue * self.max_value)
-
-                GL.glColor(1, 1 - interpolate_value, 1 - interpolate_value)
-                GL.glBegin(GL.GL_POLYGON)
-                GL.glVertex(i * square_size, j * square_size)
-                GL.glVertex((i + 1) * square_size, j * square_size)
-                GL.glVertex((i + 1) * square_size, (j + 1) * square_size)
-                GL.glVertex(i * square_size, (j + 1) * square_size)
-                GL.glEnd()
-        GL.glFlush()
+        GL.glDrawPixels(self.width(), self.height(), GL.GL_RGB, GL.GL_UNSIGNED_BYTE, (GL.GLubyte * len(data))(*data))
 
         # Handle translation
         if self.rotX != 0 or self.rotY != 0:
