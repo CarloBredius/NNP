@@ -239,9 +239,9 @@ class Ui_MainWindow(object):
                 self.computeIntermediateDatasets()
                 self.statusbar.showMessage("Drawing heat map...")
                 if self.predList:
-                    self.heatGLWidget.pred_list = self.predList
+                    self.heatGLWidget.computeHeatMap(self.predList)
                 else:
-                    print("No data to create heat map with.")
+                    print("No prediction list to create heat map with.")
                     self.statusbar.showMessage("No data to create heat map with.")
                 self.heatmapInterpSliderLabel.setVisible(True)
                 self.heatmapInterpSlider.setVisible(True)
@@ -365,7 +365,7 @@ class Ui_MainWindow(object):
             label = "mnist-full"
 
             X_train, X_test, y_train, y_test = train_test_split(X, y,
-             train_size=10000, test_size=300, random_state=420, stratify=y)
+             train_size=10000, test_size=3000, random_state=420, stratify=y)
             self.y_test = y_test
 
             # Class colors

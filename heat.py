@@ -1,4 +1,5 @@
 import cmath
+import concurrent.futures
 import numpy as np
 
 from PyQt5.QtWidgets import *
@@ -12,8 +13,9 @@ class HeatGLWidget(QOpenGLWidget):
     def initializeGL(self):
         print("Initalize openGL for heat map")
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
-        self.pred_list = None
+        self.data = None
         self.maxInterpValue = 1.0
+        self.max_heat = 0
         self.rotX = 0
         self.rotY = 0
         self.zoomFlag = False
@@ -53,35 +55,54 @@ class HeatGLWidget(QOpenGLWidget):
 
     def findnearestneighbours(self, point, radius):
         amount = 0
-        # do not look outside of range
-        for j in range(len(self.pred_list[0])):
-            for i in range(len(self.pred_list)):
-                point2 = self.pred_list[i][j]
-                if abs(point[0] - point2[0] * 100) > radius or abs(point[1] - point2[1] * 100) > radius:
-                    # Early out
+        # Do not look outside of range
+        for i in range(max(0, point[0] - radius), min(self.width(), point[0] + radius)):
+            for j in range(max(0, point[1] - radius), min(self.height(), point[1] + radius)):
+                value = self.points_array[i][j]
+                # if point is 0, early out
+                if value == 0:
                     continue
-                # TODO: Optimize, compare against squared radius, so no need to use sqrt in eucl_dist
-                eucl_dist = self.Euclidean(point, (int(point2[0] * 100), int(point2[1] * 100)))
-                if eucl_dist.real < radius:
-                    amount += 1
+                eucl_dist = self.Euclidean(point, (i, j))
+                #print(f"first: {point}, second: {i, j}, Dist: {eucl_dist.real}")
+                if eucl_dist.real <= radius:
+                    amount += value
         return amount
+
+    def computeHeat(self, point):
+        x = point[0]
+        y = point[1]
+        amount = self.findnearestneighbours((x, y), 20)
+        if amount > self.max_heat:
+            self.max_heat = amount
+        return point, amount
+
+    def computeHeatMap(self, pred_list):
+        self.points_array = np.zeros((self.width(), self.height()))
+        for j in range(len(pred_list[0])):
+            # Loop over every location of the spot
+            for i in range(len(pred_list)):
+                point = int(pred_list[i][j][0] * self.width()), int(pred_list[i][j][1] * self.height())
+                self.points_array[point] += 1
+
+        # Determine which points need to be processed
+        pointlist = []
+        for i in range(self.width()):
+            for j in range(self.height()):
+                pointlist.append((i, j))
+
+        # With a concurrent thread pool
+        self.heat_map = np.zeros((self.width(), self.height()))
+        print("Start concurrently computing heat for each pixel...")
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for point, amount in executor.map(self.computeHeat, pointlist):
+                self.heat_map[point] = amount
 
     def paintGL(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        # Create data buffer with 0 for every color channel
-        data = [0 for _ in range(0, self.height() * self.width() * 3)]
-        # Iterate over every pixel
-        for x in range(self.width()):
-            for y in range(self.height()):
-                # determine location in byte buffer
-                amount = self.findnearestneighbours((x, y), 5)
-                loc = 3 * (x + y * self.width())
-                interp_value = amount / self.maxInterpValue
-                data[loc] = 255
-                data[loc + 1] = max(255 - amount, 0) #int(1 - interp_value) * 255
-                data[loc + 2] = max(255 - amount, 0) #int(1 - interp_value) * 255
 
-        GL.glDrawPixels(self.width(), self.height(), GL.GL_RGB, GL.GL_UNSIGNED_BYTE, (GL.GLubyte * len(data))(*data))
+        self.fillHeatBuffer()
+        GL.glDrawPixels(self.width(), self.height(), GL.GL_RGB, GL.GL_UNSIGNED_BYTE,
+                        (GL.GLubyte * len(self.data))(*self.data))
 
         # Handle translation
         if self.rotX != 0 or self.rotY != 0:
@@ -93,6 +114,20 @@ class HeatGLWidget(QOpenGLWidget):
             print("Zooming in or out")
             GL.glScalef(self.zoom, self.zoom, 0)
             self.zoomFlag = False
+
+    def fillHeatBuffer(self):
+        # Create 1D data buffer with with white color as base
+        self.data = [255 for _ in range(0, self.height() * self.width() * 3)]
+        heat_per_amount = 255 / self.max_heat
+        for i in range(self.width()):
+            for j in range(self.height()):
+                if self.heat_map[i][j] > 0:
+                    loc = int(3 * (i + j * self.width()))
+                    interp_heat = 255 - int(self.heat_map[i][j] * heat_per_amount)
+                    #self.data[loc] = 255
+                    self.data[loc + 1] = interp_heat
+                    self.data[loc + 2] = interp_heat
+
 
     def rayTrace(self, p1, p2):
         # Shoot a ray from p1 to p2, add every cell it traversed to a list
@@ -120,22 +155,6 @@ class HeatGLWidget(QOpenGLWidget):
 
             traversed.append((x, y))
         return traversed
-
-    def createHeatMatrix(self, pred_list):
-        print("Creating heat matrix...")
-        self.array_size = 100
-        self.heat_array = np.zeros((self.array_size, self.array_size))
-        for j in range(len(pred_list[0])):
-            # Loop over every location of the spot
-            for i in range(len(pred_list)):
-                p1 = int(pred_list[i][j][0] * self.array_size), int(pred_list[i][j][1] * self.array_size)
-                #p2 = int(pred_list[i + 1][j][0] * self.array_size), int(pred_list[i + 1][j][1] * self.array_size)
-                #traversed = self.rayTrace(p1, p2)
-                #for cell in traversed:
-                #    self.heat_array[cell] += 1
-                #self.printarray(self.heat_array)
-                self.heat_array[p1] += 1
-        self.max_value = np.amax(self.heat_array)
 
     def printarray(self, array):
         print("Filled array:")
