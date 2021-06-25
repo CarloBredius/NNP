@@ -4,19 +4,40 @@ import numpy as np
 class Dataset:
     def __init__(self, data):
         self.raw = data
-        self.noise = data
+        self.jitter = []
+        self.noise = 0
         self.perturbed = data
         self.nonActiveDims = []
         self.removalPerAmount = len(self.raw[0]) / 100
         print("Dataset object created")
 
     def combinePerturbations(self):
-        # Clipped to be between 0 and 1
-        self.perturbed = np.clip(self.raw + self.noise, 0, 1)
+        intermediate = self.raw
+
+        # Add random noise
+        if self.jitter:
+            intermediate += self.jitter
+
+        # Add constant noise and clip to be between 0 and 1
+        self.perturbed = np.clip(intermediate + self.noise, 0, 1)
 
         # Handle non-active dimensions
         for i in self.nonActiveDims:
             self.perturbed[:, i] = 0
+
+    # Add random jitter, intensity means how much jitter
+    def jitterNoise(self, intensity):
+        # TODO: optimize
+        # Clip intensity to a value between 0 and 1
+        intensity = max(-1.0, min(1.0, float(intensity)))
+        self.jitter = []
+        for row in self.raw:
+            random_row = []
+            for _ in row:
+                random_row.append(random.uniform(-intensity, intensity))
+            self.jitter.append(random_row)
+
+        self.combinePerturbations()
 
     def addConstantNoise(self, amount):
         self.noise = 0.01 * amount
@@ -53,6 +74,8 @@ class Dataset:
                 self.addConstantNoise(i)
             elif perturbation == 2:
                 self.removeRandomDimensions(i)
+            elif perturbation == 3:
+                self.jitterNoise(0.1)
             else:
                 print("No perturbation found with index " + str(i))
             self.interDataset.append(self.perturbed)
