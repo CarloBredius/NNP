@@ -4,7 +4,7 @@ import numpy as np
 class Dataset:
     def __init__(self, data):
         self.raw = data
-        self.jitter = []
+        self.jitter = 0
         self.noise = 0
         self.perturbed = data
         self.nonActiveDims = []
@@ -12,14 +12,8 @@ class Dataset:
         print("Dataset object created")
 
     def combinePerturbations(self):
-        intermediate = self.raw
-
-        # Add random noise
-        if self.jitter:
-            intermediate += self.jitter
-
-        # Add constant noise and clip to be between 0 and 1
-        self.perturbed = np.clip(intermediate + self.noise, 0, 1)
+        # Add jitter and constant noise, clipped to be between 0 and 1
+        self.perturbed = np.clip(self.raw + self.jitter + self.noise, 0, 1)
 
         # Handle non-active dimensions
         for i in self.nonActiveDims:
@@ -27,15 +21,12 @@ class Dataset:
 
     # Add random jitter, intensity means how much jitter
     def jitterNoise(self, intensity):
-        # TODO: optimize
-        # Clip intensity to a value between 0 and 1
-        intensity = max(-1.0, min(1.0, float(intensity)))
-        self.jitter = []
-        for row in self.raw:
-            random_row = []
-            for _ in row:
-                random_row.append(random.uniform(-intensity, intensity))
-            self.jitter.append(random_row)
+        if intensity == 0:
+            self.jitter = 0
+        else:
+            # Clip intensity to a value between 0 and 1
+            intensity = max(-1.0, min(1.0, float(intensity)))
+            self.jitter = np.random.uniform(-intensity, intensity, size=(len(self.raw), len(self.raw[0])))
 
         self.combinePerturbations()
 

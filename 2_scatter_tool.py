@@ -276,7 +276,6 @@ class Ui_MainWindow(object):
 
         # Predict every dataset and save to predList
         self.predList = []
-        print(f"Length predlist: {len(self.dataset.interDataset)}")
         for i in range(0, len(self.dataset.interDataset)):
             self.predList.append(self.model.predict(self.dataset.interDataset[i]))
 
@@ -321,7 +320,7 @@ class Ui_MainWindow(object):
     def slider3Changed(self):
         new_value = self.horizontalSlider3.value()
         self.statusbar.showMessage("Changed value of perturbation slider 3 to " + str(new_value))
-        self.dataset.jitterNoise(0.1)
+        self.dataset.jitterNoise(new_value * 0.01)
         self.replot()
 
     def slider4Changed(self):
