@@ -14,6 +14,7 @@ from random import randint
 from perturb import *
 from trails import *
 from heat import *
+from star import *
 
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
@@ -45,10 +46,9 @@ class Ui_MainWindow(object):
         self.heatGLWidget = HeatGLWidget()
         self.heatGLWidget.setObjectName("heatGLView")
 
-        # Trails view using graphicsScene
-        self.trailsScene = QGraphicsScene()
-        self.trailsView = QGraphicsView(self.trailsScene, self.centralwidget)
-        self.trailsView.setObjectName("trailsView")
+        # Star map
+        self.starMapGLWidget = StarMapGLWidget()
+        self.starMapGLWidget.setObjectName("starMapGLWidget")
 
         # Stacked widget, combining plot widget and graphics view
         self.stackedWidget = QStackedWidget(self.centralwidget)
@@ -57,7 +57,7 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.plotWidget)
         self.stackedWidget.addWidget(self.trailsGLWidget)
         self.stackedWidget.addWidget(self.heatGLWidget)
-        self.stackedWidget.addWidget(self.trailsView)
+        self.stackedWidget.addWidget(self.starMapGLWidget)
 
         # Perturbation title
         self.perturbationSlidersLabel = QLabel(self.centralwidget)
@@ -169,9 +169,9 @@ class Ui_MainWindow(object):
         self.viewsHeatmap = QAction(MainWindow)
         self.viewsHeatmap.setObjectName("viewsHeatGL")
         self.viewsHeatmap.triggered.connect(lambda: self.switchWidget(2))
-        self.viewsTrail = QAction(MainWindow)
-        self.viewsTrail.setObjectName("viewsTrail")
-        self.viewsTrail.triggered.connect(lambda: self.switchWidget(3))
+        self.viewsStarMap = QAction(MainWindow)
+        self.viewsStarMap.setObjectName("viewsStarMap")
+        self.viewsStarMap.triggered.connect(lambda: self.switchWidget(3))
 
         self.fileReset = QAction(MainWindow)
         self.fileReset.setObjectName("fileReset")
@@ -183,7 +183,7 @@ class Ui_MainWindow(object):
         self.menuViews.addAction(self.viewsBasic)
         self.menuViews.addAction(self.viewsOpenGL)
         self.menuViews.addAction(self.viewsHeatmap)
-        self.menuViews.addAction(self.viewsTrail)
+        self.menuViews.addAction(self.viewsStarMap)
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuViews.menuAction())
@@ -196,7 +196,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.checkBox1.setText(_translate("MainWindow", "Add constant"))
         self.checkBox2.setText(_translate("MainWindow", "Dim. removal"))
-        self.checkBox3.setText(_translate("MainWindow", "Jitter"))
+        self.checkBox3.setText(_translate("MainWindow", "Jitter (unord.)"))
         self.checkBox4.setText(_translate("MainWindow", "Perturbation4"))
         self.perturbSelectedButton.setText(_translate("MainWindow", "Randomize selected"))
         self.reset.setText(_translate("MainWindow", "Reset"))
@@ -212,8 +212,8 @@ class Ui_MainWindow(object):
         self.viewsOpenGL.setShortcut(_translate("MainWindow", "Ctrl+2"))
         self.viewsHeatmap.setText(_translate("MainWindow", "Heat map interface"))
         self.viewsHeatmap.setShortcut(_translate("MainWindow", "Ctrl+3"))
-        self.viewsTrail.setText(_translate("MainWindow", "Trails graphicsview"))
-        self.viewsTrail.setShortcut(_translate("MainWindow", "Ctrl+4"))
+        self.viewsStarMap.setText(_translate("MainWindow", "Star map interface"))
+        self.viewsStarMap.setShortcut(_translate("MainWindow", "Ctrl+4"))
 
         self.fileReset.setText(_translate("MainWindow", "Reset"))
         self.fileReset.setShortcut(_translate("MainWindow", "Ctrl+R"))
@@ -250,9 +250,12 @@ class Ui_MainWindow(object):
         if index == 3:
             self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
             self.computeIntermediateDatasets()
-            self.statusbar.showMessage("Drawing trail map...")
-            self.projectTrailMap()
-            self.statusbar.showMessage("Trail map projected.")
+            self.statusbar.showMessage("Drawing star map...")
+            if self.predList:
+                self.starMapGLWidget.computeStarMap(self.predList)
+            else:
+                print("No data to create star map with.")
+                self.statusbar.showMessage("No data to create star map with.")
 
     def computeIntermediateDatasets(self):
         # If no checkbox is checked
@@ -279,20 +282,9 @@ class Ui_MainWindow(object):
         for i in range(0, len(self.dataset.interDataset)):
             self.predList.append(self.model.predict(self.dataset.interDataset[i]))
 
-    # Project a trail map using the data in predList and a grahicsScene
-    def projectTrailMap(self):
-        for j in range(len(self.predList[0])):
-            pen = pg.mkPen(color = self.y_test[j], width = 1)
-            for i in range(len(self.predList) - 1):
-                x1 = self.predList[i][j][0]
-                y1 = self.predList[i][j][1]
-                x2 = self.predList[i + 1][j][0]
-                y2 = self.predList[i + 1][j][1]
-                self.trailsScene.addLine(x1, y1, x2, y2, pen)
-
-        # Fit trail map to screen
-        # self.trailsScene.itemsBoundingRect()
-        self.trailsView.fitInView(0, 0, 1, 1, Qt.KeepAspectRatio)
+    # Project a star map using an unordered perturbation
+    def projectStarMap(self):
+        pass
 
     def replot(self):
         pred = self.model.predict(self.dataset.perturbed)

@@ -50,7 +50,7 @@ class HeatGLWidget(QOpenGLWidget):
             self.zoom -= 0.1
             self.update()
 
-    def Euclidean(self, p1, p2):
+    def euclidean(self, p1, p2):
         return cmath.sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1] - p1[1], 2))
 
     def findnearestneighbours(self, point, radius):
@@ -62,7 +62,7 @@ class HeatGLWidget(QOpenGLWidget):
                 # if point is 0, early out
                 if value == 0:
                     continue
-                eucl_dist = self.Euclidean(point, (i, j))
+                eucl_dist = self.euclidean(point, (i, j))
                 #print(f"first: {point}, second: {i, j}, Dist: {eucl_dist.real}")
                 if eucl_dist.real <= radius:
                     amount += value
