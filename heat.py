@@ -1,4 +1,4 @@
-import cmath
+import math
 import concurrent.futures
 import numpy as np
 
@@ -51,7 +51,7 @@ class HeatGLWidget(QOpenGLWidget):
             self.update()
 
     def euclidean(self, p1, p2):
-        return cmath.sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1] - p1[1], 2))
+        return math.sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1] - p1[1], 2))
 
     def findnearestneighbours(self, point, radius):
         amount = 0

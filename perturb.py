@@ -34,7 +34,7 @@ class Dataset:
         self.noise = 0.01 * amount
         self.combinePerturbations()
 
-    # Randomly set dimensions to 0. Potentailly chooses a dimensions that is already 0
+    # Randomly set dimensions to 0
     def removeRandomDimensions(self, amount):        
         amountToRemove = amount * self.removalPerAmount
         currentRemovalCount = len(self.nonActiveDims)

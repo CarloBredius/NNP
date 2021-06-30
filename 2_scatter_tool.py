@@ -252,7 +252,7 @@ class Ui_MainWindow(object):
             self.computeIntermediateDatasets()
             self.statusbar.showMessage("Drawing star map...")
             if self.predList:
-                self.starMapGLWidget.computeStarMap(self.predList)
+                self.starMapGLWidget.paintStarMapGL(self.predList, self.y_test, self.class_colors)
             else:
                 print("No data to create star map with.")
                 self.statusbar.showMessage("No data to create star map with.")

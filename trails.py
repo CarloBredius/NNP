@@ -62,7 +62,7 @@ class TrailsGLWidget(QOpenGLWidget):
 
         # Loop over every spot
         for j in range(len(pred_list[0])):
-            # first iteration will put thickness at 1, so this works
+            # first iteration will put thickness at 1
             line_thickness = 0
             color = class_colors[labels[j]]
             counter = 0
