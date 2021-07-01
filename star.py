@@ -1,3 +1,4 @@
+import colorsys
 import math
 
 from PyQt5.QtWidgets import *
@@ -36,19 +37,22 @@ class StarMapGLWidget(QOpenGLWidget):
 
         # Loop over every spot
         for j in range(len(pred_list[0])):
-            color = class_colors[labels[j]]
+            label_color = class_colors[labels[j]]
             base_point = pred_list[0][j]
             # Loop over every location of the spot, skip the first step
             for i in range(1, len(pred_list) - 1):
                 star_edge = pred_list[i][j][0], pred_list[i][j][1]
-                # TODO: use theta to get a color from hsv color wheel
+
                 dx, dy = base_point[0] - star_edge[0], base_point[1] - star_edge[1]
                 theta = math.atan2(dy, dx)
+                # Normalize theta with 1/2π
+                angle_color = colorsys.hsv_to_rgb(theta * 0.15915494309189533576888376337251, 1, 1)
 
                 GL.glBegin(GL.GL_LINES)
                 GL.glColor3f(1, 1, 1)
                 GL.glVertex2f(base_point[0], base_point[1])
-                GL.glColor3f(color[0], color[1], color[2])
+                GL.glColor3f(angle_color[0], angle_color[1], angle_color[2])
+                #GL.glColor3f(label_color[0], label_color[1], label_color[2])
                 GL.glVertex2f(star_edge[0], star_edge[1])
                 GL.glEnd()
 
