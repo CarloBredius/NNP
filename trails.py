@@ -14,6 +14,7 @@ class TrailsGLWidget(QOpenGLWidget):
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
+        self.pred_list = None
         self.rotX = 0
         self.rotY = 0
         self.zoomFlag = False
@@ -49,7 +50,13 @@ class TrailsGLWidget(QOpenGLWidget):
             self.update()
 
     def paintGL(self):
-        self.paintTrailMapGL(self.pred_list, self.labels, self.class_colors)
+        if self.pred_list:
+            self.paintTrailMapGL(self.pred_list, self.labels, self.class_colors)
+        else:
+            self.emptyScreen()
+
+    def emptyScreen(self):
+        print("Display empty trail map screen")
 
     def paintTrailMapGL(self, pred_list, labels, class_colors):
         print("Painting trail map")

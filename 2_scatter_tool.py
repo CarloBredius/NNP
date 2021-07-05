@@ -59,75 +59,114 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.heatGLWidget)
         self.stackedWidget.addWidget(self.starMapGLWidget)
 
-        # Perturbation title
+        # Widget Title
+        self.WidgetTitle = QLabel(self.centralwidget)
+        self.WidgetTitle.setGeometry(QRect(920, 30, 200, 35))
+        font = QFont()
+        font.setPointSize(20)
+        self.WidgetTitle.setFont(font)
+        self.WidgetTitle.setObjectName("WidgetTitle")
+
+        # Perturbation label
         self.perturbationSlidersLabel = QLabel(self.centralwidget)
-        self.perturbationSlidersLabel.setGeometry(QRect(960, 30, 170, 20))
+        self.perturbationSlidersLabel.setGeometry(QRect(930, 80, 170, 25))
         font = QFont()
         font.setPointSize(14)
         self.perturbationSlidersLabel.setFont(font)
         self.perturbationSlidersLabel.setObjectName("perturbation_title")
 
+        # Configuration label
+        self.configLabel = QLabel(self.centralwidget)
+        self.configLabel.setGeometry(QRect(930, 350, 170, 25))
+        font = QFont()
+        font.setPointSize(14)
+        self.configLabel.setFont(font)
+        self.configLabel.setObjectName("ConfigLabel")
+
         # Noise
         self.horizontalSlider1 = QSlider(self.centralwidget)
-        self.horizontalSlider1.setGeometry(QRect(920, 80, 270, 20))
+        self.horizontalSlider1.setGeometry(QRect(920, 130, 270, 20))
         self.horizontalSlider1.setMaximum(100)
         self.horizontalSlider1.setOrientation(Qt.Horizontal)
         self.horizontalSlider1.setInvertedAppearance(False)
         self.horizontalSlider1.setObjectName("horizontal1Slider")
         self.horizontalSlider1.valueChanged.connect(self.slider1Changed)
         self.checkBox1 = QCheckBox(self.centralwidget)
-        self.checkBox1.setGeometry(QRect(830, 80, 90, 20))
+        self.checkBox1.setGeometry(QRect(830, 130, 90, 20))
         self.checkBox1.setTristate(False)
         self.checkBox1.setObjectName("checkBox1")
+        self.radioButton1 = QRadioButton(self.centralwidget)
+        self.radioButton1.setGeometry(QRect(830, 130, 90, 20))
+        self.radioButton1.setObjectName("radioButton1")
+        self.radioButton1.setVisible(False)
 
         # Dimension removal
         self.horizontalSlider2 = QSlider(self.centralwidget)
-        self.horizontalSlider2.setGeometry(QRect(920, 130, 270, 20))
+        self.horizontalSlider2.setGeometry(QRect(920, 180, 270, 20))
         self.horizontalSlider2.setMaximum(100)
         self.horizontalSlider2.setOrientation(Qt.Horizontal)
         self.horizontalSlider2.setInvertedAppearance(False)
         self.horizontalSlider2.setObjectName("horizontalSlider2")
         self.horizontalSlider2.valueChanged.connect(self.slider2Changed)
         self.checkBox2 = QCheckBox(self.centralwidget)
-        self.checkBox2.setGeometry(QRect(830, 130, 90, 20))
+        self.checkBox2.setGeometry(QRect(830, 180, 90, 20))
         self.checkBox2.setObjectName("checkBox2")
+        self.radioButton2 = QRadioButton(self.centralwidget)
+        self.radioButton2.setGeometry(QRect(830, 180, 90, 20))
+        self.radioButton2.setObjectName("radioButton2")
+        self.radioButton2.setVisible(False)
 
         # Jitter
         self.horizontalSlider3 = QSlider(self.centralwidget)
-        self.horizontalSlider3.setGeometry(QRect(920, 180, 270, 20))
+        self.horizontalSlider3.setGeometry(QRect(920, 230, 270, 20))
         self.horizontalSlider3.setMaximum(100)
         self.horizontalSlider3.setOrientation(Qt.Horizontal)
         self.horizontalSlider3.setInvertedAppearance(False)
         self.horizontalSlider3.setObjectName("horizontalSlider3")
         self.horizontalSlider3.valueChanged.connect(self.slider3Changed)
         self.checkBox3 = QCheckBox(self.centralwidget)
-        self.checkBox3.setGeometry(QRect(830, 180, 90, 20))
+        self.checkBox3.setGeometry(QRect(830, 230, 90, 20))
         self.checkBox3.setObjectName("checkBox3")
+        self.radioButton3 = QRadioButton(self.centralwidget)
+        self.radioButton3.setGeometry(QRect(830, 230, 90, 20))
+        self.radioButton3.setObjectName("radioButton3")
+        self.radioButton3.setVisible(False)
 
         # Perturbation 4
         self.horizontalSlider4 = QSlider(self.centralwidget)
-        self.horizontalSlider4.setGeometry(QRect(920, 230, 270, 20))
+        self.horizontalSlider4.setGeometry(QRect(920, 280, 270, 20))
         self.horizontalSlider4.setMaximum(100)
         self.horizontalSlider4.setOrientation(Qt.Horizontal)
         self.horizontalSlider4.setInvertedAppearance(False)
         self.horizontalSlider4.setObjectName("horizontalSlider4")
         self.horizontalSlider4.valueChanged.connect(self.slider4Changed)
         self.checkBox4 = QCheckBox(self.centralwidget)
-        self.checkBox4.setGeometry(QRect(830, 230, 90, 20))
+        self.checkBox4.setGeometry(QRect(830, 280, 90, 20))
         self.checkBox4.setObjectName("checkBox4")
+        self.radioButton4 = QRadioButton(self.centralwidget)
+        self.radioButton4.setGeometry(QRect(830, 280, 90, 20))
+        self.radioButton4.setObjectName("radioButton4")
+        self.radioButton4.setVisible(False)
 
-        # Random perturbation button
+        # Random perturbation and reset button
         self.perturbSelectedButton = QPushButton(self.centralwidget)
-        self.perturbSelectedButton.setGeometry(QRect(830, 300, 150, 50))
+        self.perturbSelectedButton.setGeometry(QRect(830, 350, 150, 50))
         self.perturbSelectedButton.setObjectName("perturbSelectedButton")
         self.perturbSelectedButton.setToolTip("Randomly set all checked perturbations")
         self.perturbSelectedButton.clicked.connect(self.randChangeSelected)
+        self.resetButton = QPushButton(self.centralwidget)
+        self.resetButton.setGeometry(QRect(1000, 350, 110, 50))
+        self.resetButton.setObjectName("reset_button")
+        self.resetButton.setToolTip("Set all checked perturbations back to 0")
+        self.resetButton.clicked.connect(self.resetSelected)
 
-        self.reset = QPushButton(self.centralwidget)
-        self.reset.setGeometry(QRect(1000, 300, 110, 50))
-        self.reset.setObjectName("reset_button")
-        self.reset.setToolTip("Set all checked perturbations back to 0")
-        self.reset.clicked.connect(self.resetSelected)
+        # Compute current configuration button
+        self.computeButton = QPushButton(self.centralwidget)
+        self.computeButton.setGeometry(QRect(935, 725, 150, 50))
+        self.computeButton.setObjectName("ComputeButton")
+        self.computeButton.setToolTip("Compute visualization for the current configuration")
+        self.computeButton.clicked.connect(self.computeVisualization)
+        self.computeButton.setVisible(False)
 
         # Heat map options
         self.heatmapInterpSliderLabel = QLabel(self.centralwidget)
@@ -146,6 +185,23 @@ class Ui_MainWindow(object):
         self.heatmapInterpSlider.setObjectName("heatmapInterpSlider")
         self.heatmapInterpSlider.valueChanged.connect(self.heatmapInterpSliderChanged)
         self.heatmapInterpSlider.setVisible(False)
+
+        # Star map options
+        self.angularColorCheckbox = QCheckBox(self.centralwidget)
+        self.angularColorCheckbox.setGeometry(QRect(830, 380, 90, 20))
+        self.angularColorCheckbox.setTristate(False)
+        self.angularColorCheckbox.setObjectName("angularColorCheckbox")
+        self.angularColorCheckbox.setVisible(False)
+        self.angularColorCheckbox.setChecked(True)
+        self.angularColorCheckbox.stateChanged.connect(self.angularColorChanged)
+
+        self.interpolateColorCheckbox = QCheckBox(self.centralwidget)
+        self.interpolateColorCheckbox.setGeometry(QRect(830, 400, 90, 20))
+        self.interpolateColorCheckbox.setTristate(False)
+        self.interpolateColorCheckbox.setObjectName("interpolateColorCheckbox")
+        self.interpolateColorCheckbox.setVisible(False)
+        self.interpolateColorCheckbox.setChecked(True)
+        self.interpolateColorCheckbox.stateChanged.connect(self.interpolateColorChanged)
 
         # Menubar items
         self.menubar = QMenuBar(MainWindow)
@@ -194,15 +250,30 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.WidgetTitle.setText(_translate("MainWindow", "Scatter plot"))
+
         self.checkBox1.setText(_translate("MainWindow", "Add constant"))
         self.checkBox2.setText(_translate("MainWindow", "Dim. removal"))
         self.checkBox3.setText(_translate("MainWindow", "Jitter (unord.)"))
         self.checkBox4.setText(_translate("MainWindow", "Perturbation4"))
-        self.perturbSelectedButton.setText(_translate("MainWindow", "Randomize selected"))
-        self.reset.setText(_translate("MainWindow", "Reset"))
-        self.perturbationSlidersLabel.setText(_translate("MainWindow", "Perturbation sliders"))
-        self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
+        self.radioButton1.setText(_translate("MainWindow", "Add constant"))
+        self.radioButton2.setText(_translate("MainWindow", "Dim. removal"))
+        self.radioButton3.setText(_translate("MainWindow", "Jitter (unord.)"))
+        self.radioButton4.setText(_translate("MainWindow", "Perturbation4"))
 
+        self.perturbSelectedButton.setText(_translate("MainWindow", "Randomize selected"))
+        self.resetButton.setText(_translate("MainWindow", "Reset"))
+        self.computeButton.setText(_translate("MainWindow", "Compute visualization"))
+        self.perturbationSlidersLabel.setText(_translate("MainWindow", "Perturbations"))
+        self.configLabel.setText(_translate("MainWindow", "Configuration"))
+        self.configLabel.setVisible(False)
+
+        # Configuration labels
+        self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
+        self.angularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
+        self.interpolateColorCheckbox.setText(_translate("MainWindow", "Interpolate color"))
+
+        # Menu labels
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuViews.setTitle(_translate("MainWindow", "Views"))
 
@@ -220,60 +291,106 @@ class Ui_MainWindow(object):
         self.fileSave.setText(_translate("MainWindow", "Save"))
         self.fileSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
 
+    def computeVisualization(self):
+        # If no radio button is checked
+        if not self.radioButton1.isChecked() and not self.radioButton2.isChecked() and \
+                not self.radioButton3.isChecked() and not self.radioButton4.isChecked():
+            self.statusbar.showMessage("No perturbation is selected. Please choose one of them.")
+            print("No perturbation is selected. Please choose one of them.")
+            return
+
+        currentWidgetIndex = self.stackedWidget.currentIndex()
+        assert currentWidgetIndex > 0, \
+            "Error: There should be not computation for the visualization for the scatter plot"
+
+        self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
+        self.computeIntermediateDatasets()
+
+        if currentWidgetIndex == 1:
+            self.statusbar.showMessage("Drawing trail map...")
+            print("Drawing trail map...")
+            self.trailsGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
+            self.trailsGLWidget.update()
+
+        if currentWidgetIndex == 2:
+            self.statusbar.showMessage("Drawing heat map...")
+            print("Drawing heat map...")
+            self.heatGLWidget.computeHeatMap(self.predList)
+            self.heatGLWidget.update()
+
+        if currentWidgetIndex == 3:
+            self.statusbar.showMessage("Drawing star map...")
+            print("Drawing star map...")
+            self.starMapGLWidget.paintStarMapGL(self.predList, self.y_test, self.class_colors)
+            self.starMapGLWidget.update()
+
     def switchWidget(self, index):
         self.stackedWidget.setCurrentIndex(index)
         print("Going to stacked widget index: " + str(index))
-        # TODO: only compute intermediateDatasets if not already done so
+        if index == 0:
+            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Scatter plot"))
+            self.statusbar.showMessage("Showing scatter plot.")
+            self.computeButton.setVisible(False)
+            self.resetButton.setVisible(True)
+            self.perturbSelectedButton.setVisible(True)
+
+            # Replace radio buttons with checkboxes
+            self.radioButton1.setVisible(False)
+            self.radioButton2.setVisible(False)
+            self.radioButton3.setVisible(False)
+            self.radioButton4.setVisible(False)
+            self.checkBox1.setVisible(True)
+            self.checkBox2.setVisible(True)
+            self.checkBox3.setVisible(True)
+            self.checkBox4.setVisible(True)
+
+            self.configLabel.setVisible(False)
+        else:
+            self.resetButton.setVisible(False)
+            self.perturbSelectedButton.setVisible(False)
+
+            # Replace checkboxes with radio buttons
+            self.radioButton1.setVisible(True)
+            self.radioButton2.setVisible(True)
+            self.radioButton3.setVisible(True)
+            self.radioButton4.setVisible(True)
+            self.checkBox1.setVisible(False)
+            self.checkBox2.setVisible(False)
+            self.checkBox3.setVisible(False)
+            self.checkBox4.setVisible(False)
+
+            self.configLabel.setVisible(True)
+
         if index == 1:
-            self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
-            self.computeIntermediateDatasets()
-            self.statusbar.showMessage("Drawing trail map...")
-            if self.predList:
-                self.trailsGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
-            else:
-                print("No data to create trail map with.")
-                self.statusbar.showMessage("No data to create trail map with.")
+            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Trail map"))
+            self.computeButton.setVisible(True)
         if index == 2:
-            self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
-            self.computeIntermediateDatasets()
-            self.statusbar.showMessage("Drawing heat map...")
-            if self.predList:
-                self.heatGLWidget.computeHeatMap(self.predList)
-            else:
-                print("No prediction list to create heat map with.")
-                self.statusbar.showMessage("No data to create heat map with.")
+            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Heat map"))
+            self.computeButton.setVisible(True)
             self.heatmapInterpSliderLabel.setVisible(True)
             self.heatmapInterpSlider.setVisible(True)
         else:
             self.heatmapInterpSliderLabel.setVisible(False)
             self.heatmapInterpSlider.setVisible(False)
         if index == 3:
-            self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
-            self.computeIntermediateDatasets()
-            self.statusbar.showMessage("Drawing star map...")
-            if self.predList:
-                self.starMapGLWidget.paintStarMapGL(self.predList, self.y_test, self.class_colors)
-            else:
-                print("No data to create star map with.")
-                self.statusbar.showMessage("No data to create star map with.")
+            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Star map"))
+            self.computeButton.setVisible(True)
+            self.angularColorCheckbox.setVisible(True)
+            self.interpolateColorCheckbox.setVisible(True)
+        else:
+            self.angularColorCheckbox.setVisible(False)
+            self.interpolateColorCheckbox.setVisible(False)
 
     def computeIntermediateDatasets(self):
-        # If no checkbox is checked
-        if not self.checkBox1.isChecked() and not self.checkBox2.isChecked() and \
-                not self.checkBox3.isChecked() and not self.checkBox4.isChecked():
-            self.statusbar.showMessage("No perturbation is selected. Please choose one of them.")
-            print("No perturbation is selected. Please choose one of them.")
-            return
-
         print("Computing intermediate datasets")
         # Perturb using the checked perturbation
-        if self.checkBox1.isChecked():
+        if self.radioButton1.isChecked():
             max_value = self.horizontalSlider1.value()
             self.dataset.interDataOfPerturb(1, max_value)
-        if self.checkBox2.isChecked():
+        if self.radioButton2.isChecked():
             max_value = self.horizontalSlider2.value()
             self.dataset.interDataOfPerturb(2, max_value)
-        if self.checkBox3.isChecked():
+        if self.radioButton3.isChecked():
             max_value = self.horizontalSlider3.value()
             self.dataset.interDataOfPerturb(3, max_value)
 
@@ -281,10 +398,6 @@ class Ui_MainWindow(object):
         self.predList = []
         for i in range(0, len(self.dataset.interDataset)):
             self.predList.append(self.model.predict(self.dataset.interDataset[i]))
-
-    # Project a star map using an unordered perturbation
-    def projectStarMap(self):
-        pass
 
     def replot(self):
         pred = self.model.predict(self.dataset.perturbed)
@@ -323,7 +436,12 @@ class Ui_MainWindow(object):
         new_value = self.heatmapInterpSlider.value()
         self.statusbar.showMessage("Interpolate value of heat map changed to " + str(new_value))
         self.heatGLWidget.maxInterpValue = 1 - new_value * 0.01
-        self.heatGLWidget.update()
+
+    def angularColorChanged(self, state):
+        self.starMapGLWidget.angular_color = (state == Qt.Checked)
+
+    def interpolateColorChanged(self, state):
+        self.starMapGLWidget.interpolate_rays = (state == Qt.Checked)
 
     def randChangeSelected(self):
         if self.checkBox1.isChecked():

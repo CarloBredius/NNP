@@ -13,6 +13,7 @@ class HeatGLWidget(QOpenGLWidget):
     def initializeGL(self):
         print("Initalize openGL for heat map")
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
+        self.heat_map = None
         self.data = None
         self.maxInterpValue = 1.0
         self.max_heat = 0
@@ -99,10 +100,12 @@ class HeatGLWidget(QOpenGLWidget):
 
     def paintGL(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-
-        self.fillHeatBuffer()
-        GL.glDrawPixels(self.width(), self.height(), GL.GL_RGB, GL.GL_UNSIGNED_BYTE,
-                        (GL.GLubyte * len(self.data))(*self.data))
+        if self.heat_map:
+            self.fillHeatBuffer()
+            GL.glDrawPixels(self.width(), self.height(), GL.GL_RGB, GL.GL_UNSIGNED_BYTE,
+                            (GL.GLubyte * len(self.data))(*self.data))
+        else:
+            self.emptyScreen()
 
         # Handle translation
         if self.rotX != 0 or self.rotY != 0:
@@ -114,6 +117,9 @@ class HeatGLWidget(QOpenGLWidget):
             print("Zooming in or out")
             GL.glScalef(self.zoom, self.zoom, 0)
             self.zoomFlag = False
+
+    def emptyScreen(self):
+        print("Display empty heat map screen")
 
     def fillHeatBuffer(self):
         # Create 1D data buffer with with white color as base
