@@ -29,6 +29,8 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1200, 850)
 
+        self.lastPerturbation = None
+
         # Main window
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -188,7 +190,7 @@ class Ui_MainWindow(object):
 
         # Star map options
         self.angularColorCheckbox = QCheckBox(self.centralwidget)
-        self.angularColorCheckbox.setGeometry(QRect(830, 380, 90, 20))
+        self.angularColorCheckbox.setGeometry(QRect(830, 380, 90, 30))
         self.angularColorCheckbox.setTristate(False)
         self.angularColorCheckbox.setObjectName("angularColorCheckbox")
         self.angularColorCheckbox.setVisible(False)
@@ -196,7 +198,7 @@ class Ui_MainWindow(object):
         self.angularColorCheckbox.stateChanged.connect(self.angularColorChanged)
 
         self.interpolateColorCheckbox = QCheckBox(self.centralwidget)
-        self.interpolateColorCheckbox.setGeometry(QRect(830, 400, 90, 20))
+        self.interpolateColorCheckbox.setGeometry(QRect(830, 400, 90, 30))
         self.interpolateColorCheckbox.setTristate(False)
         self.interpolateColorCheckbox.setObjectName("interpolateColorCheckbox")
         self.interpolateColorCheckbox.setVisible(False)
@@ -291,6 +293,22 @@ class Ui_MainWindow(object):
         self.fileSave.setText(_translate("MainWindow", "Save"))
         self.fileSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
 
+    def differentPerturbation(self):
+        if self.lastPerturbation is None:
+            return True
+        else:
+            return not self.currentPerturbation() == self.lastPerturbation
+
+    def currentPerturbation(self):
+        if self.radioButton1.isChecked():
+            return 1, self.horizontalSlider1.value()
+        elif self.radioButton2.isChecked():
+            return 2, self.horizontalSlider2.value()
+        elif self.radioButton3.isChecked():
+            return 3, self.horizontalSlider3.value()
+        else:  # self.radioButton4.isChecked():
+            return 4, self.horizontalSlider4.value()
+
     def computeVisualization(self):
         # If no radio button is checked
         if not self.radioButton1.isChecked() and not self.radioButton2.isChecked() and \
@@ -300,11 +318,15 @@ class Ui_MainWindow(object):
             return
 
         currentWidgetIndex = self.stackedWidget.currentIndex()
-        assert currentWidgetIndex > 0, \
-            "Error: There should be not computation for the visualization for the scatter plot"
+        assert currentWidgetIndex > 0, "Error: There should be no computation button while in the scatter plot screen"
 
-        self.statusbar.showMessage("Computing and predicting intermediate datasets per increment...")
-        self.computeIntermediateDatasets()
+        if not self.differentPerturbation():
+            self.statusbar.showMessage("Same configuration, skip computing intermediate data sets")
+            print("Same configuration")
+        else:
+            self.statusbar.showMessage("Computing and predicting intermediate data sets per increment...")
+            self.computeIntermediateDatasets()
+            self.lastPerturbation = self.currentPerturbation()
 
         if currentWidgetIndex == 1:
             self.statusbar.showMessage("Drawing trail map...")
