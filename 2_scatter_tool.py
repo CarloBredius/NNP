@@ -84,6 +84,7 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.configLabel.setFont(font)
         self.configLabel.setObjectName("ConfigLabel")
+        self.configLabel.setVisible(False)
 
         # Noise
         self.horizontalSlider1 = QSlider(self.centralwidget)
@@ -169,6 +170,25 @@ class Ui_MainWindow(object):
         self.computeButton.setToolTip("Compute visualization for the current configuration")
         self.computeButton.clicked.connect(self.computeVisualization)
         self.computeButton.setVisible(False)
+
+        # Trail map options
+        self.lineThicknessLabel = QLabel(self.centralwidget)
+        self.lineThicknessLabel.setGeometry(QRect(920, 390, 170, 20))
+        font = QFont()
+        font.setPointSize(10)
+        self.lineThicknessLabel.setFont(font)
+        self.lineThicknessLabel.setObjectName("lineThicknessSliderLabel")
+        self.lineThicknessLabel.setVisible(False)
+
+        self.lineThicknessSlider = QSlider(self.centralwidget)
+        self.lineThicknessSlider.setGeometry(860, 420, 270, 20)
+        self.lineThicknessSlider.setRange(1, 10)
+        self.lineThicknessSlider.setValue(5)
+        self.lineThicknessSlider.setOrientation(Qt.Horizontal)
+        self.lineThicknessSlider.setInvertedAppearance(False)
+        self.lineThicknessSlider.setObjectName("lineThicknessSlider")
+        self.lineThicknessSlider.valueChanged.connect(self.lineThicknessSliderChanged)
+        self.lineThicknessSlider.setVisible(False)
 
         # Heat map options
         self.heatmapInterpSliderLabel = QLabel(self.centralwidget)
@@ -267,10 +287,10 @@ class Ui_MainWindow(object):
         self.resetButton.setText(_translate("MainWindow", "Reset"))
         self.computeButton.setText(_translate("MainWindow", "Compute visualization"))
         self.perturbationSlidersLabel.setText(_translate("MainWindow", "Perturbations"))
-        self.configLabel.setText(_translate("MainWindow", "Configuration"))
-        self.configLabel.setVisible(False)
 
         # Configuration labels
+        self.configLabel.setText(_translate("MainWindow", "Configuration"))
+        self.lineThicknessLabel.setText(_translate("MainWindow", "Line thickness"))
         self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
         self.angularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
         self.interpolateColorCheckbox.setText(_translate("MainWindow", "Interpolate color"))
@@ -386,6 +406,11 @@ class Ui_MainWindow(object):
         if index == 1:
             self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Trail map"))
             self.computeButton.setVisible(True)
+            self.lineThicknessLabel.setVisible(True)
+            self.lineThicknessSlider.setVisible(True)
+        else:
+            self.lineThicknessLabel.setVisible(False)
+            self.lineThicknessSlider.setVisible(False)
         if index == 2:
             self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Heat map"))
             self.computeButton.setVisible(True)
@@ -453,6 +478,11 @@ class Ui_MainWindow(object):
     def slider4Changed(self):
         new_value = self.horizontalSlider4.value()
         self.statusbar.showMessage("Changed value of perturbation slider 4 to " + str(new_value))
+
+    def lineThicknessSliderChanged(self):
+        new_value = self.lineThicknessSlider.value()
+        self.statusbar.showMessage("Interpolate value of heat map changed to " + str(new_value))
+        self.trailsGLWidget.max_line_thickness = new_value
 
     def heatmapInterpSliderChanged(self):
         new_value = self.heatmapInterpSlider.value()

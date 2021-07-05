@@ -15,6 +15,7 @@ class TrailsGLWidget(QOpenGLWidget):
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
         self.pred_list = None
+        self.max_line_thickness = 1
         self.rotX = 0
         self.rotY = 0
         self.zoomFlag = False
@@ -65,7 +66,7 @@ class TrailsGLWidget(QOpenGLWidget):
         self.class_colors = class_colors
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         opacity_stepsize = 1 / len(pred_list)
-        thickness_interval = len(pred_list) / 5
+        thickness_interval = int(len(pred_list) / self.max_line_thickness)
 
         # Loop over every spot
         for j in range(len(pred_list[0])):
