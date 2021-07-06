@@ -1,5 +1,6 @@
 import colorsys
 import math
+from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
 from PyQt5.QtWidgets import *
 
@@ -16,6 +17,7 @@ class StarMapGLWidget(QOpenGLWidget):
         GL.glMatrixMode(GL.GL_PROJECTION)
 
         # Configuration options
+        self.convex_hull = False
         self.angular_color = True
         self.interpolate_rays = True
 
@@ -28,7 +30,10 @@ class StarMapGLWidget(QOpenGLWidget):
     def paintGL(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         if self.pred_list:
-            self.paintStarMapGL(self.pred_list, self.labels, self.class_colors)
+            if self.convex_hull:
+                self.paintConvexStarMapGL(self.pred_list, self.labels, self.class_colors)
+            else:
+                self.paintStarMapGL(self.pred_list, self.labels, self.class_colors)
         else:
             self.emptyScreen()
 
@@ -37,6 +42,39 @@ class StarMapGLWidget(QOpenGLWidget):
 
     def emptyScreen(self):
         print("Display empty star map screen")
+
+    def paintConvexStarMapGL(self, pred_list, labels, class_colors):
+        self.pred_list = pred_list
+        self.labels = labels
+        self.class_colors = class_colors
+
+        # Loop over every spot
+        for j in range(len(pred_list[0])):
+            # fill list for the spots point cloud
+            points = []
+            for i in range(len(pred_list) - 1):
+                points.append((pred_list[i][j][0], pred_list[i][j][1]))
+
+            brush_color = class_colors[labels[j]]
+            GL.glColor3f(brush_color[0], brush_color[1], brush_color[2])
+
+            # Create list of convex hull indices
+            hull_indices = []
+            hull = ConvexHull(points)
+            for index in hull.vertices:
+                hull_indices.append(index)
+            # Complete convex hull by adding the first index to the end
+            hull_indices.append(hull.vertices[0])
+
+            # Draw lines through the convex hull points
+            GL.glBegin(GL.GL_LINES)
+            for i in range(len(hull_indices) - 1):
+                point = points[hull_indices[i]]
+                GL.glVertex2f(point[0], point[1])
+                point2 = points[hull_indices[i + 1]]
+                GL.glVertex2f(point2[0], point2[1])
+            GL.glEnd()
+        GL.glFlush()
 
     def paintStarMapGL(self, pred_list, labels, class_colors):
         self.pred_list = pred_list

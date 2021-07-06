@@ -209,8 +209,15 @@ class Ui_MainWindow(object):
         self.heatmapInterpSlider.setVisible(False)
 
         # Star map options
+        self.convexHullCheckbox = QCheckBox(self.centralwidget)
+        self.convexHullCheckbox.setGeometry(QRect(830, 380, 120, 30))
+        self.convexHullCheckbox.setTristate(False)
+        self.convexHullCheckbox.setObjectName("convexHullCheckbox")
+        self.convexHullCheckbox.setVisible(False)
+        self.convexHullCheckbox.stateChanged.connect(self.convexHullCheckboxChanged)
+
         self.angularColorCheckbox = QCheckBox(self.centralwidget)
-        self.angularColorCheckbox.setGeometry(QRect(830, 380, 90, 30))
+        self.angularColorCheckbox.setGeometry(QRect(830, 400, 120, 30))
         self.angularColorCheckbox.setTristate(False)
         self.angularColorCheckbox.setObjectName("angularColorCheckbox")
         self.angularColorCheckbox.setVisible(False)
@@ -218,7 +225,7 @@ class Ui_MainWindow(object):
         self.angularColorCheckbox.stateChanged.connect(self.angularColorChanged)
 
         self.interpolateColorCheckbox = QCheckBox(self.centralwidget)
-        self.interpolateColorCheckbox.setGeometry(QRect(830, 400, 90, 30))
+        self.interpolateColorCheckbox.setGeometry(QRect(830, 420, 120, 30))
         self.interpolateColorCheckbox.setTristate(False)
         self.interpolateColorCheckbox.setObjectName("interpolateColorCheckbox")
         self.interpolateColorCheckbox.setVisible(False)
@@ -292,6 +299,7 @@ class Ui_MainWindow(object):
         self.configLabel.setText(_translate("MainWindow", "Configuration"))
         self.lineThicknessLabel.setText(_translate("MainWindow", "Line thickness"))
         self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
+        self.convexHullCheckbox.setText(_translate("MainWindow", "Convex hull"))
         self.angularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
         self.interpolateColorCheckbox.setText(_translate("MainWindow", "Interpolate color"))
 
@@ -363,7 +371,10 @@ class Ui_MainWindow(object):
         if currentWidgetIndex == 3:
             self.statusbar.showMessage("Drawing star map...")
             print("Drawing star map...")
-            self.starMapGLWidget.paintStarMapGL(self.predList, self.y_test, self.class_colors)
+            if self.convexHullCheckbox.isChecked():
+                self.starMapGLWidget.paintConvexStarMapGL(self.predList, self.y_test, self.class_colors)
+            else:
+                self.starMapGLWidget.paintStarMapGL(self.predList, self.y_test, self.class_colors)
             self.starMapGLWidget.update()
 
     def switchWidget(self, index):
@@ -422,9 +433,15 @@ class Ui_MainWindow(object):
         if index == 3:
             self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Star map"))
             self.computeButton.setVisible(True)
-            self.angularColorCheckbox.setVisible(True)
-            self.interpolateColorCheckbox.setVisible(True)
+            self.convexHullCheckbox.setVisible(True)
+            if not self.convexHullCheckbox.isChecked():
+                self.angularColorCheckbox.setVisible(True)
+                self.interpolateColorCheckbox.setVisible(True)
+            else:
+                self.angularColorCheckbox.setVisible(False)
+                self.interpolateColorCheckbox.setVisible(False)
         else:
+            self.convexHullCheckbox.setVisible(False)
             self.angularColorCheckbox.setVisible(False)
             self.interpolateColorCheckbox.setVisible(False)
 
@@ -488,6 +505,12 @@ class Ui_MainWindow(object):
         new_value = self.heatmapInterpSlider.value()
         self.statusbar.showMessage("Interpolate value of heat map changed to " + str(new_value))
         self.heatGLWidget.maxInterpValue = 1 - new_value * 0.01
+
+    def convexHullCheckboxChanged(self, state):
+        state = (state == Qt.Checked)
+        self.interpolateColorCheckbox.setVisible(not state)
+        self.angularColorCheckbox.setVisible(not state)
+        self.starMapGLWidget.convex_hull = state
 
     def angularColorChanged(self, state):
         self.starMapGLWidget.angular_color = (state == Qt.Checked)
