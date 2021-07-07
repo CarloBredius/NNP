@@ -172,8 +172,15 @@ class Ui_MainWindow(object):
         self.computeButton.setVisible(False)
 
         # Trail map options
+        self.trailAngularColorCheckbox = QCheckBox(self.centralwidget)
+        self.trailAngularColorCheckbox.setGeometry(QRect(830, 390, 120, 30))
+        self.trailAngularColorCheckbox.setTristate(False)
+        self.trailAngularColorCheckbox.setObjectName("trailAngularColorCheckbox")
+        self.trailAngularColorCheckbox.setVisible(False)
+        self.trailAngularColorCheckbox.stateChanged.connect(self.trailAngularColorCheckboxChanged)
+
         self.lineThicknessLabel = QLabel(self.centralwidget)
-        self.lineThicknessLabel.setGeometry(QRect(920, 390, 170, 20))
+        self.lineThicknessLabel.setGeometry(QRect(920, 420, 170, 20))
         font = QFont()
         font.setPointSize(10)
         self.lineThicknessLabel.setFont(font)
@@ -181,7 +188,7 @@ class Ui_MainWindow(object):
         self.lineThicknessLabel.setVisible(False)
 
         self.lineThicknessSlider = QSlider(self.centralwidget)
-        self.lineThicknessSlider.setGeometry(860, 420, 270, 20)
+        self.lineThicknessSlider.setGeometry(860, 450, 270, 20)
         self.lineThicknessSlider.setRange(1, 10)
         self.lineThicknessSlider.setValue(5)
         self.lineThicknessSlider.setOrientation(Qt.Horizontal)
@@ -216,21 +223,23 @@ class Ui_MainWindow(object):
         self.convexHullCheckbox.setVisible(False)
         self.convexHullCheckbox.stateChanged.connect(self.convexHullCheckboxChanged)
 
-        self.angularColorCheckbox = QCheckBox(self.centralwidget)
-        self.angularColorCheckbox.setGeometry(QRect(830, 400, 120, 30))
-        self.angularColorCheckbox.setTristate(False)
-        self.angularColorCheckbox.setObjectName("angularColorCheckbox")
-        self.angularColorCheckbox.setVisible(False)
-        self.angularColorCheckbox.setChecked(True)
-        self.angularColorCheckbox.stateChanged.connect(self.angularColorChanged)
+        self.starAngularColorCheckbox = QCheckBox(self.centralwidget)
+        self.starAngularColorCheckbox.setGeometry(QRect(830, 400, 120, 30))
+        self.starAngularColorCheckbox.setTristate(False)
+        self.starAngularColorCheckbox.setObjectName("angularColorCheckbox")
+        self.starAngularColorCheckbox.setVisible(False)
+        self.starAngularColorCheckbox.setDisabled(False)
+        self.starAngularColorCheckbox.setChecked(True)
+        self.starAngularColorCheckbox.stateChanged.connect(self.starAngularColorCheckboxChanged)
 
         self.interpolateColorCheckbox = QCheckBox(self.centralwidget)
         self.interpolateColorCheckbox.setGeometry(QRect(830, 420, 120, 30))
         self.interpolateColorCheckbox.setTristate(False)
         self.interpolateColorCheckbox.setObjectName("interpolateColorCheckbox")
         self.interpolateColorCheckbox.setVisible(False)
+        self.interpolateColorCheckbox.setDisabled(False)
         self.interpolateColorCheckbox.setChecked(True)
-        self.interpolateColorCheckbox.stateChanged.connect(self.interpolateColorChanged)
+        self.interpolateColorCheckbox.stateChanged.connect(self.interpolateColorCheckboxChanged)
 
         # Menubar items
         self.menubar = QMenuBar(MainWindow)
@@ -297,10 +306,11 @@ class Ui_MainWindow(object):
 
         # Configuration labels
         self.configLabel.setText(_translate("MainWindow", "Configuration"))
+        self.trailAngularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
         self.lineThicknessLabel.setText(_translate("MainWindow", "Line thickness"))
         self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
         self.convexHullCheckbox.setText(_translate("MainWindow", "Convex hull"))
-        self.angularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
+        self.starAngularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
         self.interpolateColorCheckbox.setText(_translate("MainWindow", "Interpolate color"))
 
         # Menu labels
@@ -417,9 +427,11 @@ class Ui_MainWindow(object):
         if index == 1:
             self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Trail map"))
             self.computeButton.setVisible(True)
+            self.trailAngularColorCheckbox.setVisible(True)
             self.lineThicknessLabel.setVisible(True)
             self.lineThicknessSlider.setVisible(True)
         else:
+            self.trailAngularColorCheckbox.setVisible(False)
             self.lineThicknessLabel.setVisible(False)
             self.lineThicknessSlider.setVisible(False)
         if index == 2:
@@ -434,15 +446,17 @@ class Ui_MainWindow(object):
             self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Star map"))
             self.computeButton.setVisible(True)
             self.convexHullCheckbox.setVisible(True)
+            self.starAngularColorCheckbox.setVisible(True)
+            self.interpolateColorCheckbox.setVisible(True)
             if not self.convexHullCheckbox.isChecked():
-                self.angularColorCheckbox.setVisible(True)
-                self.interpolateColorCheckbox.setVisible(True)
+                self.starAngularColorCheckbox.setDisabled(False)
+                self.interpolateColorCheckbox.setDisabled(False)
             else:
-                self.angularColorCheckbox.setVisible(False)
-                self.interpolateColorCheckbox.setVisible(False)
+                self.starAngularColorCheckbox.setDisabled(True)
+                self.interpolateColorCheckbox.setDisabled(True)
         else:
             self.convexHullCheckbox.setVisible(False)
-            self.angularColorCheckbox.setVisible(False)
+            self.starAngularColorCheckbox.setVisible(False)
             self.interpolateColorCheckbox.setVisible(False)
 
     def computeIntermediateDatasets(self):
@@ -496,6 +510,9 @@ class Ui_MainWindow(object):
         new_value = self.horizontalSlider4.value()
         self.statusbar.showMessage("Changed value of perturbation slider 4 to " + str(new_value))
 
+    def trailAngularColorCheckboxChanged(self, state):
+        self.trailsGLWidget.angular_color = (state == Qt.Checked)
+
     def lineThicknessSliderChanged(self):
         new_value = self.lineThicknessSlider.value()
         self.statusbar.showMessage("Interpolate value of heat map changed to " + str(new_value))
@@ -508,14 +525,14 @@ class Ui_MainWindow(object):
 
     def convexHullCheckboxChanged(self, state):
         state = (state == Qt.Checked)
-        self.interpolateColorCheckbox.setVisible(not state)
-        self.angularColorCheckbox.setVisible(not state)
+        self.interpolateColorCheckbox.setDisabled(state)
+        self.starAngularColorCheckbox.setDisabled(state)
         self.starMapGLWidget.convex_hull = state
 
-    def angularColorChanged(self, state):
+    def starAngularColorCheckboxChanged(self, state):
         self.starMapGLWidget.angular_color = (state == Qt.Checked)
 
-    def interpolateColorChanged(self, state):
+    def interpolateColorCheckboxChanged(self, state):
         self.starMapGLWidget.interpolate_rays = (state == Qt.Checked)
 
     def randChangeSelected(self):

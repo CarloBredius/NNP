@@ -1,6 +1,6 @@
-import sys
+import colorsys
+import math
 from PyQt5.QtWidgets import *
-import numpy as np
 
 try:
     import OpenGL.GL as GL
@@ -15,7 +15,8 @@ class TrailsGLWidget(QOpenGLWidget):
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
         self.pred_list = None
-        self.max_line_thickness = 1
+        self.angular_color = False
+        self.max_line_thickness = 5
         self.rotX = 0
         self.rotY = 0
         self.zoomFlag = False
@@ -72,18 +73,26 @@ class TrailsGLWidget(QOpenGLWidget):
         for j in range(len(pred_list[0])):
             # first iteration will put thickness at 1
             line_thickness = 0
-            color = class_colors[labels[j]]
+            brush_color = class_colors[labels[j]]
             counter = 0
             # Loop over every location of the spot
             for i in range(len(pred_list) - 1):
                 if counter % thickness_interval == 0:
                     line_thickness += 1
                     GL.glLineWidth(line_thickness)
-                GL.glColor4f(color[0],  color[1], color[2], counter * opacity_stepsize)
+
+                p1, p2 = pred_list[i][j], pred_list[i + 1][j]
+                if self.angular_color:
+                    dx, dy = p1[0] - p2[0], p1[1] - p2[1]
+                    theta = math.atan2(dy, dx)
+                    # Normalize theta with 1/2π
+                    brush_color = colorsys.hsv_to_rgb(theta * 0.15915494309189533576888376337251, 1, 1)
+
+                GL.glColor4f(brush_color[0],  brush_color[1], brush_color[2], counter * opacity_stepsize)
                 # OpenGL needs a start and an endpoint, hence why some points will be added twice
                 GL.glBegin(GL.GL_LINES)
-                GL.glVertex2f(pred_list[i][j][0], pred_list[i][j][1])
-                GL.glVertex2f(pred_list[i + 1][j][0], pred_list[i + 1][j][1])
+                GL.glVertex2f(p1[0], p1[1])
+                GL.glVertex2f(p2[0], p2[1])
                 GL.glEnd()
                 counter += 1
 
