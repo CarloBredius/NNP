@@ -60,7 +60,7 @@ class Dataset:
         pass
 
     def scaleAllPerturbations(self, amount):
-        self.scale_factor = 1 + (0.01 * (amount - 100))
+        self.scale_factor = 0.01 * amount
         self.combinePerturbations()
 
     # For a chosen perturbation
@@ -79,7 +79,7 @@ class Dataset:
             elif perturbation == 3:
                 self.jitterNoise(0.1)
             elif perturbation == 4:
-                self.scaleAllPerturbations(i)
+                self.scaleAllPerturbations(maxValue - i)
             else:
                 print("No perturbation found with index " + str(i))
             self.interDataset.append(self.perturbed)

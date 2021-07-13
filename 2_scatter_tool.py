@@ -138,7 +138,7 @@ class Ui_MainWindow(object):
         # Perturbation scale
         self.horizontalSlider4 = QSlider(self.centralwidget)
         self.horizontalSlider4.setGeometry(QRect(920, 280, 270, 20))
-        self.horizontalSlider4.setMaximum(200)
+        self.horizontalSlider4.setMaximum(100)
         self.horizontalSlider4.setSliderPosition(100)
         self.horizontalSlider4.setOrientation(Qt.Horizontal)
         self.horizontalSlider4.setInvertedAppearance(False)
@@ -191,6 +191,7 @@ class Ui_MainWindow(object):
         self.lineThicknessSlider = QSlider(self.centralwidget)
         self.lineThicknessSlider.setGeometry(860, 450, 270, 20)
         self.lineThicknessSlider.setRange(1, 10)
+        self.lineThicknessSlider.setPageStep(2)
         self.lineThicknessSlider.setValue(5)
         self.lineThicknessSlider.setOrientation(Qt.Horizontal)
         self.lineThicknessSlider.setInvertedAppearance(False)
@@ -293,11 +294,11 @@ class Ui_MainWindow(object):
 
         self.checkBox1.setText(_translate("MainWindow", "Add constant"))
         self.checkBox2.setText(_translate("MainWindow", "Dim. removal"))
-        self.checkBox3.setText(_translate("MainWindow", "Jitter (unord.)"))
+        self.checkBox3.setText(_translate("MainWindow", "Jitter (unord)"))
         self.checkBox4.setText(_translate("MainWindow", "Scale perturbs"))
         self.radioButton1.setText(_translate("MainWindow", "Add constant"))
         self.radioButton2.setText(_translate("MainWindow", "Dim. removal"))
-        self.radioButton3.setText(_translate("MainWindow", "Jitter (unord.)"))
+        self.radioButton3.setText(_translate("MainWindow", "Jitter (unord)"))
         self.radioButton4.setText(_translate("MainWindow", "Scale perturbs"))
 
         self.perturbSelectedButton.setText(_translate("MainWindow", "Randomize selected"))
@@ -365,6 +366,7 @@ class Ui_MainWindow(object):
         else:
             self.statusbar.showMessage("Computing and predicting intermediate data sets per increment...")
             self.computeIntermediateDatasets()
+            self.heatGLWidget.heatmapFilled = False
             self.lastPerturbation = self.currentPerturbation()
 
         if currentWidgetIndex == 1:
@@ -472,6 +474,9 @@ class Ui_MainWindow(object):
         if self.radioButton3.isChecked():
             max_value = self.horizontalSlider3.value()
             self.dataset.interDataOfPerturb(3, max_value)
+        if self.radioButton4.isChecked():
+            max_value = self.horizontalSlider4.value()
+            self.dataset.interDataOfPerturb(4, max_value)
 
         # Predict every dataset and save to predList
         self.predList = []
@@ -556,7 +561,7 @@ class Ui_MainWindow(object):
         if self.checkBox3.isChecked():
             self.horizontalSlider3.setValue(0)
         if self.checkBox4.isChecked():
-            self.horizontalSlider4.setValue(100)
+            self.horizontalSlider4.setValue(0)
 
     def loadTestData(self, MainWindow):
         print("Loading dummy data...")

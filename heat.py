@@ -14,6 +14,7 @@ class HeatGLWidget(QOpenGLWidget):
         print("Initalize openGL for heat map")
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
         self.heat_map = None
+        self.heatmapFilled = False
         self.data = None
         self.maxInterpValue = 1.0
         self.max_heat = 0
@@ -97,10 +98,11 @@ class HeatGLWidget(QOpenGLWidget):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for point, amount in executor.map(self.computeHeat, pointlist):
                 self.heat_map[point] = amount
+        self.heatmapFilled = True
 
     def paintGL(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        if self.heat_map:
+        if self.heatmapFilled:
             self.fillHeatBuffer()
             GL.glDrawPixels(self.width(), self.height(), GL.GL_RGB, GL.GL_UNSIGNED_BYTE,
                             (GL.GLubyte * len(self.data))(*self.data))
