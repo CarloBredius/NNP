@@ -8,12 +8,19 @@ class Dataset:
         self.noise = 0
         self.perturbed = data
         self.nonActiveDims = []
+        self.scale_factor = 1
         self.removalPerAmount = len(self.raw[0]) / 100
         print("Dataset object created")
 
     def combinePerturbations(self):
         # Add jitter and constant noise, clipped to be between 0 and 1
-        self.perturbed = np.clip(self.raw + self.jitter + self.noise, 0, 1)
+        intermediate = np.clip(self.raw + self.jitter + self.noise, 0, 1)
+
+        # Compute the difference with the original
+        delta = intermediate - self.raw
+        # Scale the difference and add to original
+        self.perturbed = self.raw + self.scale_factor * delta
+
 
         # Handle non-active dimensions
         for i in self.nonActiveDims:
@@ -52,6 +59,10 @@ class Dataset:
     def perturbAll(self, amount):
         pass
 
+    def scaleAllPerturbations(self, amount):
+        self.scale_factor = 1 + (0.01 * (amount - 100))
+        self.combinePerturbations()
+
     # For a chosen perturbation
     # Compute the intermediate datasets from 0 to given value and add them to a list
     def interDataOfPerturb(self, perturbation, maxValue):
@@ -67,6 +78,8 @@ class Dataset:
                 self.removeRandomDimensions(i)
             elif perturbation == 3:
                 self.jitterNoise(0.1)
+            elif perturbation == 4:
+                self.scaleAllPerturbations(i)
             else:
                 print("No perturbation found with index " + str(i))
             self.interDataset.append(self.perturbed)

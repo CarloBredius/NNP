@@ -135,10 +135,11 @@ class Ui_MainWindow(object):
         self.radioButton3.setObjectName("radioButton3")
         self.radioButton3.setVisible(False)
 
-        # Perturbation 4
+        # Perturbation scale
         self.horizontalSlider4 = QSlider(self.centralwidget)
         self.horizontalSlider4.setGeometry(QRect(920, 280, 270, 20))
-        self.horizontalSlider4.setMaximum(100)
+        self.horizontalSlider4.setMaximum(200)
+        self.horizontalSlider4.setSliderPosition(100)
         self.horizontalSlider4.setOrientation(Qt.Horizontal)
         self.horizontalSlider4.setInvertedAppearance(False)
         self.horizontalSlider4.setObjectName("horizontalSlider4")
@@ -293,11 +294,11 @@ class Ui_MainWindow(object):
         self.checkBox1.setText(_translate("MainWindow", "Add constant"))
         self.checkBox2.setText(_translate("MainWindow", "Dim. removal"))
         self.checkBox3.setText(_translate("MainWindow", "Jitter (unord.)"))
-        self.checkBox4.setText(_translate("MainWindow", "Perturbation4"))
+        self.checkBox4.setText(_translate("MainWindow", "Scale perturbs"))
         self.radioButton1.setText(_translate("MainWindow", "Add constant"))
         self.radioButton2.setText(_translate("MainWindow", "Dim. removal"))
         self.radioButton3.setText(_translate("MainWindow", "Jitter (unord.)"))
-        self.radioButton4.setText(_translate("MainWindow", "Perturbation4"))
+        self.radioButton4.setText(_translate("MainWindow", "Scale perturbs"))
 
         self.perturbSelectedButton.setText(_translate("MainWindow", "Randomize selected"))
         self.resetButton.setText(_translate("MainWindow", "Reset"))
@@ -509,6 +510,8 @@ class Ui_MainWindow(object):
     def slider4Changed(self):
         new_value = self.horizontalSlider4.value()
         self.statusbar.showMessage("Changed value of perturbation slider 4 to " + str(new_value))
+        self.dataset.scaleAllPerturbations(new_value)
+        self.replot()
 
     def trailAngularColorCheckboxChanged(self, state):
         self.trailsGLWidget.angular_color = (state == Qt.Checked)
@@ -553,7 +556,7 @@ class Ui_MainWindow(object):
         if self.checkBox3.isChecked():
             self.horizontalSlider3.setValue(0)
         if self.checkBox4.isChecked():
-            self.horizontalSlider4.setValue(0)
+            self.horizontalSlider4.setValue(100)
 
     def loadTestData(self, MainWindow):
         print("Loading dummy data...")
@@ -599,7 +602,7 @@ class Ui_MainWindow(object):
             color = self.class_colors[label]
             self.brushes.append(QBrush(QColor.fromRgbF(color[0], color[1], color[2])))
 
-        items = pg.ScatterPlotItem(x=pred[:,0], y=pred[:,1], data=np.arange(len(X_test)),
+        items = pg.ScatterPlotItem(x=pred[:,0], y=pred[:,1], data=y_test,
                                    pen='w', brush=self.brushes, size=10, hoverable=True, hoverPen=pg.mkPen(0, 0, 0, 255))
 
         self.plotWidget.addItem(items)
