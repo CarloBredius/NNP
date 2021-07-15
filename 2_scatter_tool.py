@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # embed pyqtgraph in pyqt5: https://www.mfitzp.com/tutorials/embed-pyqtgraph-custom-widgets-qt-app/
+# TODO: All tooltips
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -29,8 +30,6 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1200, 850)
 
-        self.lastPerturbation = None
-
         # Main window
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -52,7 +51,7 @@ class Ui_MainWindow(object):
         self.starMapGLWidget = StarMapGLWidget()
         self.starMapGLWidget.setObjectName("starMapGLWidget")
 
-        # Stacked widget, combining plot widget and graphics view
+        # Stacked widget, combining all visualizations
         self.stackedWidget = QStackedWidget(self.centralwidget)
         self.stackedWidget.setGeometry(QRect(10, 10, 800, 800))
         self.stackedWidget.setObjectName("stackedWidget")
@@ -60,6 +59,9 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.trailsGLWidget)
         self.stackedWidget.addWidget(self.heatGLWidget)
         self.stackedWidget.addWidget(self.starMapGLWidget)
+
+        # For checking if intermediate results can be reused or not
+        self.recompute = True
 
         # Widget Title
         self.WidgetTitle = QLabel(self.centralwidget)
@@ -69,7 +71,7 @@ class Ui_MainWindow(object):
         self.WidgetTitle.setFont(font)
         self.WidgetTitle.setObjectName("WidgetTitle")
 
-        # Perturbation label
+        # Perturbations label
         self.perturbationSlidersLabel = QLabel(self.centralwidget)
         self.perturbationSlidersLabel.setGeometry(QRect(930, 80, 170, 25))
         font = QFont()
@@ -77,80 +79,144 @@ class Ui_MainWindow(object):
         self.perturbationSlidersLabel.setFont(font)
         self.perturbationSlidersLabel.setObjectName("perturbation_title")
 
-        # Configuration label
-        self.configLabel = QLabel(self.centralwidget)
-        self.configLabel.setGeometry(QRect(930, 350, 170, 25))
+        # Translation
+        self.translationLabel = QLabel(self.centralwidget)
+        self.translationLabel.setGeometry(QRect(950, 105, 170, 25))
         font = QFont()
-        font.setPointSize(14)
-        self.configLabel.setFont(font)
-        self.configLabel.setObjectName("ConfigLabel")
-        self.configLabel.setVisible(False)
+        font.setPointSize(10)
+        self.translationLabel.setFont(font)
+        self.translationLabel.setObjectName("translationLabel")
+        self.translationAmountSlider = QSlider(self.centralwidget)
+        self.translationAmountSlider.setGeometry(QRect(920, 130, 270, 20))
+        self.translationAmountSlider.setMaximum(100)
+        self.translationAmountSlider.setOrientation(Qt.Horizontal)
+        self.translationAmountSlider.setInvertedAppearance(False)
+        self.translationAmountSlider.setObjectName("translationSlider")
+        self.translationAmountSlider.valueChanged.connect(self.translationAmountChanged)
+        self.translationAmountCheckbox = QCheckBox(self.centralwidget)
+        self.translationAmountCheckbox.setGeometry(QRect(830, 130, 90, 20))
+        self.translationAmountCheckbox.setTristate(False)
+        self.translationAmountCheckbox.setObjectName("translationAmountCheckbox")
+        self.translationAmountRadioButton = QRadioButton(self.centralwidget)
+        self.translationAmountRadioButton.setGeometry(QRect(830, 130, 90, 20))
+        self.translationAmountRadioButton.setObjectName("translationAmountRadioButton")
+        self.translationAmountRadioButton.setVisible(False)
+        self.translationAmountRadioButton.setChecked(True)
 
-        # Noise
-        self.horizontalSlider1 = QSlider(self.centralwidget)
-        self.horizontalSlider1.setGeometry(QRect(920, 130, 270, 20))
-        self.horizontalSlider1.setMaximum(100)
-        self.horizontalSlider1.setOrientation(Qt.Horizontal)
-        self.horizontalSlider1.setInvertedAppearance(False)
-        self.horizontalSlider1.setObjectName("horizontal1Slider")
-        self.horizontalSlider1.valueChanged.connect(self.slider1Changed)
-        self.checkBox1 = QCheckBox(self.centralwidget)
-        self.checkBox1.setGeometry(QRect(830, 130, 90, 20))
-        self.checkBox1.setTristate(False)
-        self.checkBox1.setObjectName("checkBox1")
-        self.radioButton1 = QRadioButton(self.centralwidget)
-        self.radioButton1.setGeometry(QRect(830, 130, 90, 20))
-        self.radioButton1.setObjectName("radioButton1")
-        self.radioButton1.setVisible(False)
+        self.translationDimensionSlider = QSlider(self.centralwidget)
+        self.translationDimensionSlider.setGeometry(QRect(920, 150, 270, 20))
+        self.translationDimensionSlider.setMaximum(100)
+        self.translationDimensionSlider.setOrientation(Qt.Horizontal)
+        self.translationDimensionSlider.setInvertedAppearance(False)
+        self.translationDimensionSlider.setObjectName("translationDimensionSlider")
+        self.translationDimensionSlider.valueChanged.connect(self.translationDimentionsChanged)
+        self.translationDimensionCheckbox = QCheckBox(self.centralwidget)
+        self.translationDimensionCheckbox.setGeometry(QRect(830, 150, 90, 20))
+        self.translationDimensionCheckbox.setTristate(False)
+        self.translationDimensionCheckbox.setObjectName("translationDimensionCheckbox")
+        self.translationDimensionRadioButton = QRadioButton(self.centralwidget)
+        self.translationDimensionRadioButton.setGeometry(QRect(830, 150, 90, 20))
+        self.translationDimensionRadioButton.setObjectName("translationDimensionRadioButton")
+        self.translationDimensionRadioButton.setVisible(False)
 
-        # Dimension removal
-        self.horizontalSlider2 = QSlider(self.centralwidget)
-        self.horizontalSlider2.setGeometry(QRect(920, 180, 270, 20))
-        self.horizontalSlider2.setMaximum(100)
-        self.horizontalSlider2.setOrientation(Qt.Horizontal)
-        self.horizontalSlider2.setInvertedAppearance(False)
-        self.horizontalSlider2.setObjectName("horizontalSlider2")
-        self.horizontalSlider2.valueChanged.connect(self.slider2Changed)
-        self.checkBox2 = QCheckBox(self.centralwidget)
-        self.checkBox2.setGeometry(QRect(830, 180, 90, 20))
-        self.checkBox2.setObjectName("checkBox2")
-        self.radioButton2 = QRadioButton(self.centralwidget)
-        self.radioButton2.setGeometry(QRect(830, 180, 90, 20))
-        self.radioButton2.setObjectName("radioButton2")
-        self.radioButton2.setVisible(False)
+        # Scale
+        self.scaleLabel = QLabel(self.centralwidget)
+        self.scaleLabel.setGeometry(QRect(970, 165, 170, 25))
+        font = QFont()
+        font.setPointSize(10)
+        self.scaleLabel.setFont(font)
+        self.scaleLabel.setObjectName("scaleLabel")
+        self.scaleAmountSlider = QSlider(self.centralwidget)
+        self.scaleAmountSlider.setGeometry(QRect(920, 190, 270, 20))
+        self.scaleAmountSlider.setMaximum(100)
+        self.scaleAmountSlider.setSliderPosition(100)
+        self.scaleAmountSlider.setOrientation(Qt.Horizontal)
+        self.scaleAmountSlider.setInvertedAppearance(False)
+        self.scaleAmountSlider.setObjectName("scaleAmountSlider")
+        self.scaleAmountSlider.valueChanged.connect(self.scaleAmountChanged)
+        self.scaleAmountCheckbox = QCheckBox(self.centralwidget)
+        self.scaleAmountCheckbox.setGeometry(QRect(830, 190, 90, 20))
+        self.scaleAmountCheckbox.setTristate(False)
+        self.scaleAmountCheckbox.setObjectName("scaleAmountCheckbox")
+        self.scaleAmountRadioButton = QRadioButton(self.centralwidget)
+        self.scaleAmountRadioButton.setGeometry(QRect(830, 190, 90, 20))
+        self.scaleAmountRadioButton.setObjectName("scaleAmountRadioButton")
+        self.scaleAmountRadioButton.setVisible(False)
+
+        self.scaleDimensionSlider = QSlider(self.centralwidget)
+        self.scaleDimensionSlider.setGeometry(QRect(920, 210, 270, 20))
+        self.scaleDimensionSlider.setMaximum(100)
+        self.scaleDimensionSlider.setOrientation(Qt.Horizontal)
+        self.scaleDimensionSlider.setInvertedAppearance(False)
+        self.scaleDimensionSlider.setObjectName("scaleDimensionSlider")
+        self.scaleDimensionSlider.valueChanged.connect(self.scaleDimensionChanged)
+        self.scaleDimensionCheckbox = QCheckBox(self.centralwidget)
+        self.scaleDimensionCheckbox.setGeometry(QRect(830, 210, 90, 20))
+        self.scaleDimensionCheckbox.setTristate(False)
+        self.scaleDimensionCheckbox.setObjectName("scaleDimensionCheckbox")
+        self.scaleDimensionRadioButton = QRadioButton(self.centralwidget)
+        self.scaleDimensionRadioButton.setGeometry(QRect(830, 210, 90, 20))
+        self.scaleDimensionRadioButton.setObjectName("scaleDimensionRadioButton")
+        self.scaleDimensionRadioButton.setVisible(False)
 
         # Jitter
-        self.horizontalSlider3 = QSlider(self.centralwidget)
-        self.horizontalSlider3.setGeometry(QRect(920, 230, 270, 20))
-        self.horizontalSlider3.setMaximum(100)
-        self.horizontalSlider3.setOrientation(Qt.Horizontal)
-        self.horizontalSlider3.setInvertedAppearance(False)
-        self.horizontalSlider3.setObjectName("horizontalSlider3")
-        self.horizontalSlider3.valueChanged.connect(self.slider3Changed)
-        self.checkBox3 = QCheckBox(self.centralwidget)
-        self.checkBox3.setGeometry(QRect(830, 230, 90, 20))
-        self.checkBox3.setObjectName("checkBox3")
-        self.radioButton3 = QRadioButton(self.centralwidget)
-        self.radioButton3.setGeometry(QRect(830, 230, 90, 20))
-        self.radioButton3.setObjectName("radioButton3")
-        self.radioButton3.setVisible(False)
+        self.jitterSlider = QSlider(self.centralwidget)
+        self.jitterSlider.setGeometry(QRect(920, 250, 270, 20))
+        self.jitterSlider.setMaximum(100)
+        self.jitterSlider.setOrientation(Qt.Horizontal)
+        self.jitterSlider.setInvertedAppearance(False)
+        self.jitterSlider.setObjectName("jitterSlider")
+        self.jitterSlider.valueChanged.connect(self.jitterSliderChanged)
+        self.jitterCheckbox = QCheckBox(self.centralwidget)
+        self.jitterCheckbox.setGeometry(QRect(830, 250, 90, 20))
+        self.jitterCheckbox.setObjectName("jitterCheckbox")
+        self.jitterRadioButton = QRadioButton(self.centralwidget)
+        self.jitterRadioButton.setGeometry(QRect(830, 250, 90, 20))
+        self.jitterRadioButton.setObjectName("jitterRadioButton")
+        self.jitterRadioButton.setVisible(False)
 
-        # Perturbation scale
-        self.horizontalSlider4 = QSlider(self.centralwidget)
-        self.horizontalSlider4.setGeometry(QRect(920, 280, 270, 20))
-        self.horizontalSlider4.setMaximum(100)
-        self.horizontalSlider4.setSliderPosition(100)
-        self.horizontalSlider4.setOrientation(Qt.Horizontal)
-        self.horizontalSlider4.setInvertedAppearance(False)
-        self.horizontalSlider4.setObjectName("horizontalSlider4")
-        self.horizontalSlider4.valueChanged.connect(self.slider4Changed)
-        self.checkBox4 = QCheckBox(self.centralwidget)
-        self.checkBox4.setGeometry(QRect(830, 280, 90, 20))
-        self.checkBox4.setObjectName("checkBox4")
-        self.radioButton4 = QRadioButton(self.centralwidget)
-        self.radioButton4.setGeometry(QRect(830, 280, 90, 20))
-        self.radioButton4.setObjectName("radioButton4")
-        self.radioButton4.setVisible(False)
+        # Global scale
+        self.globalScaleSlider = QSlider(self.centralwidget)
+        self.globalScaleSlider.setGeometry(QRect(920, 280, 270, 20))
+        self.globalScaleSlider.setMaximum(100)
+        self.globalScaleSlider.setSliderPosition(100)
+        self.globalScaleSlider.setOrientation(Qt.Horizontal)
+        self.globalScaleSlider.setInvertedAppearance(False)
+        self.globalScaleSlider.setObjectName("globalScaleSlider")
+        self.globalScaleSlider.valueChanged.connect(self.globalScaleSliderChanged)
+        self.globalScaleCheckbox = QCheckBox(self.centralwidget)
+        self.globalScaleCheckbox.setGeometry(QRect(830, 280, 90, 20))
+        self.globalScaleCheckbox.setObjectName("globalScaleCheckbox")
+        self.globalScaleRadioButton = QRadioButton(self.centralwidget)
+        self.globalScaleRadioButton.setGeometry(QRect(830, 280, 90, 20))
+        self.globalScaleRadioButton.setObjectName("globalScaleRadioButton")
+        self.globalScaleRadioButton.setVisible(False)
+
+        # Dimension removal
+        self.dimRemovalSlider = QSlider(self.centralwidget)
+        self.dimRemovalSlider.setGeometry(QRect(920, 310, 270, 20))
+        self.dimRemovalSlider.setMaximum(100)
+        self.dimRemovalSlider.setOrientation(Qt.Horizontal)
+        self.dimRemovalSlider.setInvertedAppearance(False)
+        self.dimRemovalSlider.setObjectName("dimRemovalSlider")
+        self.dimRemovalSlider.valueChanged.connect(self.dimRemovalSliderChanged)
+        self.dimRemovalCheckbox = QCheckBox(self.centralwidget)
+        self.dimRemovalCheckbox.setGeometry(QRect(830, 310, 90, 20))
+        self.dimRemovalCheckbox.setObjectName("dimRemovalCheckbox")
+        self.dimRemovalRadioButton = QRadioButton(self.centralwidget)
+        self.dimRemovalRadioButton.setGeometry(QRect(830, 310, 90, 20))
+        self.dimRemovalRadioButton.setObjectName("dimRemovalRadioButton")
+        self.dimRemovalRadioButton.setVisible(False)
+
+        # Group the perturbations radio buttons
+        self.radioButtons = QButtonGroup(self.centralwidget)
+        self.radioButtons.addButton(self.translationAmountRadioButton, 1)
+        self.radioButtons.addButton(self.translationDimensionRadioButton, 2)
+        self.radioButtons.addButton(self.scaleAmountRadioButton, 3)
+        self.radioButtons.addButton(self.scaleDimensionRadioButton, 4)
+        self.radioButtons.addButton(self.jitterRadioButton, 5)
+        self.radioButtons.addButton(self.globalScaleRadioButton, 6)
+        self.radioButtons.addButton(self.dimRemovalRadioButton, 7)
 
         # Random perturbation and reset button
         self.perturbSelectedButton = QPushButton(self.centralwidget)
@@ -163,6 +229,15 @@ class Ui_MainWindow(object):
         self.resetButton.setObjectName("reset_button")
         self.resetButton.setToolTip("Set all checked perturbations back to 0")
         self.resetButton.clicked.connect(self.resetSelected)
+
+        # Configuration label
+        self.configLabel = QLabel(self.centralwidget)
+        self.configLabel.setGeometry(QRect(930, 350, 170, 25))
+        font = QFont()
+        font.setPointSize(14)
+        self.configLabel.setFont(font)
+        self.configLabel.setObjectName("ConfigLabel")
+        self.configLabel.setVisible(False)
 
         # Compute current configuration button
         self.computeButton = QPushButton(self.centralwidget)
@@ -311,19 +386,31 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.WidgetTitle.setText(_translate("MainWindow", "Scatter plot"))
 
-        self.checkBox1.setText(_translate("MainWindow", "Add constant"))
-        self.checkBox2.setText(_translate("MainWindow", "Dim. removal"))
-        self.checkBox3.setText(_translate("MainWindow", "Jitter (unord)"))
-        self.checkBox4.setText(_translate("MainWindow", "Scale perturbs"))
-        self.radioButton1.setText(_translate("MainWindow", "Add constant"))
-        self.radioButton2.setText(_translate("MainWindow", "Dim. removal"))
-        self.radioButton3.setText(_translate("MainWindow", "Jitter (unord)"))
-        self.radioButton4.setText(_translate("MainWindow", "Scale perturbs"))
+        self.perturbationSlidersLabel.setText(_translate("MainWindow", "Perturbations"))
+        self.translationLabel.setText(_translate("MainWindow", "Translation"))
+        self.translationAmountCheckbox.setText(_translate("MainWindow", "Amount"))
+        self.translationDimensionCheckbox.setText(_translate("MainWindow", "Dimensions"))
+        self.translationAmountRadioButton.setText(_translate("MainWindow", "Amount"))
+        self.translationDimensionRadioButton.setText(_translate("MainWindow", "Dimensions"))
+
+        self.scaleLabel.setText(_translate("MainWindow", "Scale"))
+        self.scaleAmountCheckbox.setText(_translate("MainWindow", "Amount"))
+        self.scaleDimensionCheckbox.setText(_translate("MainWindow", "Dimensions"))
+        self.scaleAmountRadioButton.setText(_translate("MainWindow", "Amount"))
+        self.scaleDimensionRadioButton.setText(_translate("MainWindow", "Dimensions"))
+
+        self.globalScaleCheckbox.setText(_translate("MainWindow", "Global scale"))
+        self.dimRemovalCheckbox.setText(_translate("MainWindow", "Dim. removal"))
+        self.dimRemovalRadioButton.setText(_translate("MainWindow", "Dim. removal"))
+
+        self.jitterCheckbox.setText(_translate("MainWindow", "Jitter (unord)"))
+        self.jitterRadioButton.setText(_translate("MainWindow", "Jitter (unord)"))
+
+        self.globalScaleRadioButton.setText(_translate("MainWindow", "Global scale"))
 
         self.perturbSelectedButton.setText(_translate("MainWindow", "Randomize selected"))
         self.resetButton.setText(_translate("MainWindow", "Reset"))
         self.computeButton.setText(_translate("MainWindow", "Compute visualization"))
-        self.perturbationSlidersLabel.setText(_translate("MainWindow", "Perturbations"))
 
         # Configuration labels
         self.configLabel.setText(_translate("MainWindow", "Configuration"))
@@ -365,14 +452,23 @@ class Ui_MainWindow(object):
             self.perturbSelectedButton.setVisible(True)
 
             # Replace radio buttons with checkboxes
-            self.radioButton1.setVisible(False)
-            self.radioButton2.setVisible(False)
-            self.radioButton3.setVisible(False)
-            self.radioButton4.setVisible(False)
-            self.checkBox1.setVisible(True)
-            self.checkBox2.setVisible(True)
-            self.checkBox3.setVisible(True)
-            self.checkBox4.setVisible(True)
+            self.translationAmountRadioButton.setVisible(False)
+            self.translationDimensionRadioButton.setVisible(False)
+            self.translationAmountCheckbox.setVisible(True)
+            self.translationDimensionCheckbox.setVisible(True)
+
+            self.scaleAmountRadioButton.setVisible(False)
+            self.scaleDimensionRadioButton.setVisible(False)
+            self.scaleAmountCheckbox.setVisible(True)
+            self.scaleDimensionCheckbox.setVisible(True)
+
+            self.dimRemovalRadioButton.setVisible(False)
+            self.jitterRadioButton.setVisible(False)
+            self.globalScaleRadioButton.setVisible(False)
+
+            self.dimRemovalCheckbox.setVisible(True)
+            self.jitterCheckbox.setVisible(True)
+            self.globalScaleCheckbox.setVisible(True)
 
             self.configLabel.setVisible(False)
         else:
@@ -380,14 +476,23 @@ class Ui_MainWindow(object):
             self.perturbSelectedButton.setVisible(False)
 
             # Replace checkboxes with radio buttons
-            self.radioButton1.setVisible(True)
-            self.radioButton2.setVisible(True)
-            self.radioButton3.setVisible(True)
-            self.radioButton4.setVisible(True)
-            self.checkBox1.setVisible(False)
-            self.checkBox2.setVisible(False)
-            self.checkBox3.setVisible(False)
-            self.checkBox4.setVisible(False)
+            self.translationAmountCheckbox.setVisible(False)
+            self.translationDimensionCheckbox.setVisible(False)
+            self.translationAmountRadioButton.setVisible(True)
+            self.translationDimensionRadioButton.setVisible(True)
+
+            self.scaleAmountCheckbox.setVisible(False)
+            self.scaleDimensionCheckbox.setVisible(False)
+            self.scaleAmountRadioButton.setVisible(True)
+            self.scaleDimensionRadioButton.setVisible(True)
+
+            self.dimRemovalRadioButton.setVisible(True)
+            self.jitterRadioButton.setVisible(True)
+            self.globalScaleRadioButton.setVisible(True)
+
+            self.dimRemovalCheckbox.setVisible(False)
+            self.jitterCheckbox.setVisible(False)
+            self.globalScaleCheckbox.setVisible(False)
 
             self.configLabel.setVisible(True)
         if index == 1:
@@ -438,34 +543,38 @@ class Ui_MainWindow(object):
             return not self.currentPerturbation() == self.lastPerturbation
 
     def currentPerturbation(self):
-        if self.radioButton1.isChecked():
-            return 1, self.horizontalSlider1.value()
-        elif self.radioButton2.isChecked():
-            return 2, self.horizontalSlider2.value()
-        elif self.radioButton3.isChecked():
-            return 3, self.horizontalSlider3.value()
-        else:  # self.radioButton4.isChecked():
-            return 4, self.horizontalSlider4.value()
+        checked_button_index = self.radioButtons.checkedId()
+        print(f"Current radio button: {checked_button_index}")
+        if checked_button_index == 1:
+            return 1, self.translationAmountSlider.value()
+        elif checked_button_index == 2:
+            return 2, self.translationDimensionSlider.value()
+        elif checked_button_index == 3:
+            return 3, self.scaleAmountSlider.value()
+        elif checked_button_index == 4:
+            return 4, self.scaleDimensionSlider.value()
+        elif checked_button_index == 5:
+            return 5, self.jitterSlider.value()
+        elif checked_button_index == 6:
+            return 6, self.globalScaleSlider.value()
+        elif checked_button_index == 7:
+            return 7, self.dimRemovalSlider.value()
+        else:
+            print("Error: Unknown radiobutton id in current perturbation.")
 
     def computeVisualization(self):
-        # If no radio button is checked
-        if not self.radioButton1.isChecked() and not self.radioButton2.isChecked() and \
-                not self.radioButton3.isChecked() and not self.radioButton4.isChecked():
-            self.statusbar.showMessage("No perturbation is selected. Please choose one of them.")
-            print("No perturbation is selected. Please choose one of them.")
-            return
-
         currentWidgetIndex = self.stackedWidget.currentIndex()
         assert currentWidgetIndex > 0, "Error: There should be no computation button while in the scatter plot screen"
 
-        if not self.differentPerturbation():
-            self.statusbar.showMessage("Same configuration, skip computing intermediate data sets")
-            print("Same configuration")
-        else:
+        if self.recompute:
             self.statusbar.showMessage("Computing and predicting intermediate data sets per increment...")
             self.computeIntermediateDatasets()
             self.heatGLWidget.heatmapFilled = False
             self.lastPerturbation = self.currentPerturbation()
+            self.recompute = False
+        else:
+            self.statusbar.showMessage("Same configuration, skip computing intermediate data sets")
+            print("Same configuration, skip computing intermediate data sets")
 
         if currentWidgetIndex == 1:
             self.statusbar.showMessage("Drawing trail map...")
@@ -495,20 +604,29 @@ class Ui_MainWindow(object):
         self.starMapGLWidget.global_opacity = new_value
 
     def computeIntermediateDatasets(self):
-        print("Computing intermediate datasets")
+        checked_button_index = self.radioButtons.checkedId()
+        max_value = 0
+
         # Perturb using the checked perturbation
-        if self.radioButton1.isChecked():
-            max_value = self.horizontalSlider1.value()
-            self.dataset.interDataOfPerturb(1, max_value)
-        if self.radioButton2.isChecked():
-            max_value = self.horizontalSlider2.value()
-            self.dataset.interDataOfPerturb(2, max_value)
-        if self.radioButton3.isChecked():
-            max_value = self.horizontalSlider3.value()
-            self.dataset.interDataOfPerturb(3, max_value)
-        if self.radioButton4.isChecked():
-            max_value = self.horizontalSlider4.value()
-            self.dataset.interDataOfPerturb(4, max_value)
+        if checked_button_index == 1:
+            max_value = self.translationAmountSlider.value()
+        elif checked_button_index == 2:
+            max_value = self.translationDimensionSlider.value()
+        elif checked_button_index == 3:
+            max_value = self.scaleAmountSlider.value()
+        elif checked_button_index == 4:
+            max_value = self.scaleDimensionSlider.value()
+        elif checked_button_index == 5:
+            max_value = self.jitterSlider.value()
+        elif checked_button_index == 6:
+            max_value = self.globalScaleSlider.value()
+        elif checked_button_index == 7:
+            max_value = self.dimRemovalSlider.value()
+        else:
+            print(f"Error: Unknown radio button with index {checked_button_index} in computeIntermediateDatasets.")
+
+        print(f"Computing intermediate datasets for perturbation {checked_button_index} with range 0-{max_value}.")
+        self.dataset.interDataOfPerturb(checked_button_index, max_value)
 
         # Predict every dataset and save to predList
         self.predList = []
@@ -526,29 +644,62 @@ class Ui_MainWindow(object):
 
         self.plotWidget.setXRange(0, 1)
 
-    def slider1Changed(self):
-        new_value = self.horizontalSlider1.value()
-        self.statusbar.showMessage("Changed value of perturbation slider 1 to " + str(new_value))
-        self.dataset.addConstantNoise(new_value)
-        self.replot()
+    def translationAmountChanged(self):
+        new_value = self.translationAmountSlider.value()
+        self.statusbar.showMessage("Changed translation perturbation: amount to " + str(new_value))
+        self.recompute = True
+        if self.stackedWidget.currentIndex() == 0:
+            self.dataset.translation(new_value, self.translationDimensionSlider.value())
+            self.replot()
 
-    def slider2Changed(self):
-        new_value = self.horizontalSlider2.value()
-        self.statusbar.showMessage("Changed value of perturbation slider 2 to " + str(new_value))
-        self.dataset.removeRandomDimensions(new_value)
-        self.replot()
+    def translationDimentionsChanged(self):
+        new_value = self.translationDimensionSlider.value()
+        self.statusbar.showMessage("Changed translation perturbation: number of random dimensions to " + str(new_value))
+        self.recompute = True
 
-    def slider3Changed(self):
-        new_value = self.horizontalSlider3.value()
-        self.statusbar.showMessage("Changed value of perturbation slider 3 to " + str(new_value))
-        self.dataset.jitterNoise(new_value * 0.01)
-        self.replot()
+        if self.stackedWidget.currentIndex() == 0:
+            self.dataset.translation(self.translationAmountSlider.value(), new_value)
+            self.replot()
 
-    def slider4Changed(self):
-        new_value = self.horizontalSlider4.value()
-        self.statusbar.showMessage("Changed value of perturbation slider 4 to " + str(new_value))
-        self.dataset.scaleAllPerturbations(new_value)
-        self.replot()
+    def scaleAmountChanged(self):
+        new_value = self.scaleAmountSlider.value()
+        self.statusbar.showMessage("Changed scale perturbation: number of random dimensions to " + str(new_value))
+        self.recompute = True
+        if self.stackedWidget.currentIndex() == 0:
+            self.dataset.scale(new_value, self.scaleDimensionSlider.value())
+            self.replot()
+
+    def scaleDimensionChanged(self):
+        new_value = self.scaleDimensionSlider.value()
+        self.statusbar.showMessage("Changed scale perturbation: amount to " + str(new_value))
+        self.recompute = True
+        if self.stackedWidget.currentIndex() == 0:
+            self.dataset.scale(self.scaleAmountSlider.value(), new_value)
+            self.replot()
+
+    def dimRemovalSliderChanged(self):
+        new_value = self.dimRemovalSlider.value()
+        self.statusbar.showMessage("Changed value of dimension removal slider to " + str(new_value))
+        self.recompute = True
+        if self.stackedWidget.currentIndex() == 0:
+            self.dataset.removeRandomDimensions(new_value)
+            self.replot()
+
+    def jitterSliderChanged(self):
+        new_value = self.jitterSlider.value()
+        self.statusbar.showMessage("Changed value of jitter slider to " + str(new_value))
+        self.recompute = True
+        if self.stackedWidget.currentIndex() == 0:
+            self.dataset.jitterNoise(new_value * 0.01)
+            self.replot()
+
+    def globalScaleSliderChanged(self):
+        new_value = self.globalScaleSlider.value()
+        self.statusbar.showMessage("Changed value of global scale slider to " + str(new_value))
+        self.recompute = True
+        if self.stackedWidget.currentIndex() == 0:
+            self.dataset.scaleAllPerturbations(new_value)
+            self.replot()
 
     def trailAngularColorCheckboxChanged(self, state):
         self.trailsGLWidget.angular_color = (state == Qt.Checked)
@@ -576,24 +727,44 @@ class Ui_MainWindow(object):
         self.starMapGLWidget.interpolate_rays = (state == Qt.Checked)
 
     def randChangeSelected(self):
-        if self.checkBox1.isChecked():
-            self.horizontalSlider1.setValue(randint(1, self.horizontalSlider2.maximum()))
-        if self.checkBox2.isChecked():
-            self.horizontalSlider2.setValue(randint(1, self.horizontalSlider2.maximum()))
-        if self.checkBox3.isChecked():
-            self.horizontalSlider3.setValue(randint(1, self.horizontalSlider3.maximum()))
-        if self.checkBox4.isChecked():
-            self.horizontalSlider4.setValue(randint(1, self.horizontalSlider4.maximum()))
+        if self.translationAmountCheckbox.isChecked():
+            self.translationAmountSlider.setValue(randint(0, self.translationAmountSlider.maximum()))
+        if self.translationDimensionCheckbox.isChecked():
+            self.translationDimensionSlider.setValue(randint(0, self.translationDimensionSlider.maximum()))
+
+        if self.scaleAmountCheckbox.isChecked():
+            self.scaleAmountSlider.setValue(randint(0, self.translationAmountSlider.maximum()))
+        if self.scaleDimensionCheckbox.isChecked():
+            self.scaleDimensionSlider.setValue(randint(0, self.translationAmountSlider.maximum()))
+
+        if self.jitterCheckbox.isChecked():
+            self.jitterSlider.setValue(randint(0, self.jitterSlider.maximum()))
+
+        if self.globalScaleCheckbox.isChecked():
+            self.globalScaleSlider.setValue(randint(0, self.globalScaleSlider.maximum()))
+
+        if self.dimRemovalCheckbox.isChecked():
+            self.dimRemovalSlider.setValue(randint(0, self.dimRemovalSlider.maximum()))
 
     def resetSelected(self):
-        if self.checkBox1.isChecked():
-            self.horizontalSlider1.setValue(0)
-        if self.checkBox2.isChecked():
-            self.horizontalSlider2.setValue(0)
-        if self.checkBox3.isChecked():
-            self.horizontalSlider3.setValue(0)
-        if self.checkBox4.isChecked():
-            self.horizontalSlider4.setValue(0)
+        if self.translationAmountCheckbox.isChecked():
+            self.translationAmountSlider.setValue(0)
+        if self.translationDimensionCheckbox.isChecked():
+            self.translationDimensionSlider.setValue(0)
+
+        if self.scaleAmountCheckbox.isChecked():
+            self.scaleAmountSlider.setValue(100)
+        if self.scaleDimensionCheckbox.isChecked():
+            self.scaleDimensionSlider.setValue(0)
+
+        if self.jitterCheckbox.isChecked():
+            self.jitterSlider.setValue(0)
+
+        if self.globalScaleCheckbox.isChecked():
+            self.globalScaleSlider.setValue(100)
+
+        if self.dimRemovalCheckbox.isChecked():
+            self.dimRemovalSlider.setValue(0)
 
     def loadTestData(self, MainWindow):
         print("Loading dummy data...")
