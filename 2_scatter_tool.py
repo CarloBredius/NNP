@@ -172,6 +172,25 @@ class Ui_MainWindow(object):
         self.computeButton.clicked.connect(self.computeVisualization)
         self.computeButton.setVisible(False)
 
+        # General configuration options
+        self.globalOpacitySliderLabel = QLabel(self.centralwidget)
+        self.globalOpacitySliderLabel.setGeometry(QRect(960, 640, 170, 20))
+        font = QFont()
+        font.setPointSize(10)
+        self.globalOpacitySliderLabel.setFont(font)
+        self.globalOpacitySliderLabel.setObjectName("globalOpacitySliderLabel")
+        self.globalOpacitySliderLabel.setVisible(False)
+
+        self.globalOpacitySlider = QSlider(self.centralwidget)
+        self.globalOpacitySlider.setGeometry(QRect(870, 680, 270, 20))
+        self.globalOpacitySlider.setMaximum(100)
+        self.globalOpacitySlider.setSliderPosition(100)
+        self.globalOpacitySlider.setOrientation(Qt.Horizontal)
+        self.globalOpacitySlider.setInvertedAppearance(False)
+        self.globalOpacitySlider.setObjectName("globalOpacitySlider")
+        self.globalOpacitySlider.valueChanged.connect(self.globalOpacitySliderChanged)
+        self.globalOpacitySlider.setVisible(False)
+
         # Trail map options
         self.trailAngularColorCheckbox = QCheckBox(self.centralwidget)
         self.trailAngularColorCheckbox.setGeometry(QRect(830, 390, 120, 30))
@@ -201,15 +220,15 @@ class Ui_MainWindow(object):
 
         # Heat map options
         self.heatmapInterpSliderLabel = QLabel(self.centralwidget)
-        self.heatmapInterpSliderLabel.setGeometry(QRect(920, 390, 170, 20))
+        self.heatmapInterpSliderLabel.setGeometry(QRect(930, 390, 170, 20))
         font = QFont()
         font.setPointSize(10)
         self.heatmapInterpSliderLabel.setFont(font)
-        self.heatmapInterpSliderLabel.setObjectName("Interpolate threshold")
+        self.heatmapInterpSliderLabel.setObjectName("heatmapInterpSliderLabel")
         self.heatmapInterpSliderLabel.setVisible(False)
 
         self.heatmapInterpSlider = QSlider(self. centralwidget)
-        self.heatmapInterpSlider.setGeometry(QRect(860, 420, 270, 20))
+        self.heatmapInterpSlider.setGeometry(QRect(870, 420, 270, 20))
         self.heatmapInterpSlider.setMaximum(99)
         self.heatmapInterpSlider.setOrientation(Qt.Horizontal)
         self.heatmapInterpSlider.setInvertedAppearance(False)
@@ -314,6 +333,7 @@ class Ui_MainWindow(object):
         self.convexHullCheckbox.setText(_translate("MainWindow", "Convex hull"))
         self.starAngularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
         self.interpolateColorCheckbox.setText(_translate("MainWindow", "Interpolate color"))
+        self.globalOpacitySliderLabel.setText(_translate("MainWindow", "Global opacity"))
 
         # Menu labels
         self.menuFile.setTitle(_translate("MainWindow", "File"))
@@ -332,6 +352,84 @@ class Ui_MainWindow(object):
         self.fileReset.setShortcut(_translate("MainWindow", "Ctrl+R"))
         self.fileSave.setText(_translate("MainWindow", "Save"))
         self.fileSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
+
+    def switchWidget(self, index):
+        self.stackedWidget.setCurrentIndex(index)
+        print("Going to stacked widget index: " + str(index))
+        # When a config is used in multiple widgets, set to False should only be done at first code appearance
+        if index == 0:
+            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Scatter plot"))
+            self.statusbar.showMessage("Showing scatter plot.")
+            self.computeButton.setVisible(False)
+            self.resetButton.setVisible(True)
+            self.perturbSelectedButton.setVisible(True)
+
+            # Replace radio buttons with checkboxes
+            self.radioButton1.setVisible(False)
+            self.radioButton2.setVisible(False)
+            self.radioButton3.setVisible(False)
+            self.radioButton4.setVisible(False)
+            self.checkBox1.setVisible(True)
+            self.checkBox2.setVisible(True)
+            self.checkBox3.setVisible(True)
+            self.checkBox4.setVisible(True)
+
+            self.configLabel.setVisible(False)
+        else:
+            self.resetButton.setVisible(False)
+            self.perturbSelectedButton.setVisible(False)
+
+            # Replace checkboxes with radio buttons
+            self.radioButton1.setVisible(True)
+            self.radioButton2.setVisible(True)
+            self.radioButton3.setVisible(True)
+            self.radioButton4.setVisible(True)
+            self.checkBox1.setVisible(False)
+            self.checkBox2.setVisible(False)
+            self.checkBox3.setVisible(False)
+            self.checkBox4.setVisible(False)
+
+            self.configLabel.setVisible(True)
+        if index == 1:
+            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Trail map"))
+            self.computeButton.setVisible(True)
+            self.trailAngularColorCheckbox.setVisible(True)
+            self.lineThicknessLabel.setVisible(True)
+            self.lineThicknessSlider.setVisible(True)
+            self.globalOpacitySliderLabel.setVisible(True)
+            self.globalOpacitySlider.setVisible(True)
+        else:
+            self.trailAngularColorCheckbox.setVisible(False)
+            self.lineThicknessLabel.setVisible(False)
+            self.lineThicknessSlider.setVisible(False)
+            self.globalOpacitySliderLabel.setVisible(False)
+            self.globalOpacitySlider.setVisible(False)
+        if index == 2:
+            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Heat map"))
+            self.computeButton.setVisible(True)
+            self.heatmapInterpSliderLabel.setVisible(True)
+            self.heatmapInterpSlider.setVisible(True)
+        else:
+            self.heatmapInterpSliderLabel.setVisible(False)
+            self.heatmapInterpSlider.setVisible(False)
+        if index == 3:
+            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Star map"))
+            self.computeButton.setVisible(True)
+            self.convexHullCheckbox.setVisible(True)
+            self.starAngularColorCheckbox.setVisible(True)
+            self.interpolateColorCheckbox.setVisible(True)
+            self.globalOpacitySliderLabel.setVisible(True)
+            self.globalOpacitySlider.setVisible(True)
+            if not self.convexHullCheckbox.isChecked():
+                self.starAngularColorCheckbox.setDisabled(False)
+                self.interpolateColorCheckbox.setDisabled(False)
+            else:
+                self.starAngularColorCheckbox.setDisabled(True)
+                self.interpolateColorCheckbox.setDisabled(True)
+        else:
+            self.convexHullCheckbox.setVisible(False)
+            self.starAngularColorCheckbox.setVisible(False)
+            self.interpolateColorCheckbox.setVisible(False)
 
     def differentPerturbation(self):
         if self.lastPerturbation is None:
@@ -390,77 +488,11 @@ class Ui_MainWindow(object):
                 self.starMapGLWidget.paintStarMapGL(self.predList, self.y_test, self.class_colors)
             self.starMapGLWidget.update()
 
-    def switchWidget(self, index):
-        self.stackedWidget.setCurrentIndex(index)
-        print("Going to stacked widget index: " + str(index))
-        if index == 0:
-            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Scatter plot"))
-            self.statusbar.showMessage("Showing scatter plot.")
-            self.computeButton.setVisible(False)
-            self.resetButton.setVisible(True)
-            self.perturbSelectedButton.setVisible(True)
-
-            # Replace radio buttons with checkboxes
-            self.radioButton1.setVisible(False)
-            self.radioButton2.setVisible(False)
-            self.radioButton3.setVisible(False)
-            self.radioButton4.setVisible(False)
-            self.checkBox1.setVisible(True)
-            self.checkBox2.setVisible(True)
-            self.checkBox3.setVisible(True)
-            self.checkBox4.setVisible(True)
-
-            self.configLabel.setVisible(False)
-        else:
-            self.resetButton.setVisible(False)
-            self.perturbSelectedButton.setVisible(False)
-
-            # Replace checkboxes with radio buttons
-            self.radioButton1.setVisible(True)
-            self.radioButton2.setVisible(True)
-            self.radioButton3.setVisible(True)
-            self.radioButton4.setVisible(True)
-            self.checkBox1.setVisible(False)
-            self.checkBox2.setVisible(False)
-            self.checkBox3.setVisible(False)
-            self.checkBox4.setVisible(False)
-
-            self.configLabel.setVisible(True)
-
-        if index == 1:
-            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Trail map"))
-            self.computeButton.setVisible(True)
-            self.trailAngularColorCheckbox.setVisible(True)
-            self.lineThicknessLabel.setVisible(True)
-            self.lineThicknessSlider.setVisible(True)
-        else:
-            self.trailAngularColorCheckbox.setVisible(False)
-            self.lineThicknessLabel.setVisible(False)
-            self.lineThicknessSlider.setVisible(False)
-        if index == 2:
-            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Heat map"))
-            self.computeButton.setVisible(True)
-            self.heatmapInterpSliderLabel.setVisible(True)
-            self.heatmapInterpSlider.setVisible(True)
-        else:
-            self.heatmapInterpSliderLabel.setVisible(False)
-            self.heatmapInterpSlider.setVisible(False)
-        if index == 3:
-            self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Star map"))
-            self.computeButton.setVisible(True)
-            self.convexHullCheckbox.setVisible(True)
-            self.starAngularColorCheckbox.setVisible(True)
-            self.interpolateColorCheckbox.setVisible(True)
-            if not self.convexHullCheckbox.isChecked():
-                self.starAngularColorCheckbox.setDisabled(False)
-                self.interpolateColorCheckbox.setDisabled(False)
-            else:
-                self.starAngularColorCheckbox.setDisabled(True)
-                self.interpolateColorCheckbox.setDisabled(True)
-        else:
-            self.convexHullCheckbox.setVisible(False)
-            self.starAngularColorCheckbox.setVisible(False)
-            self.interpolateColorCheckbox.setVisible(False)
+    def globalOpacitySliderChanged(self):
+        new_value = self.globalOpacitySlider.value() * 0.01
+        self.statusbar.showMessage("Changed value of global opacity slider to " + "{:.2f}".format(new_value))
+        self.trailsGLWidget.global_opacity = new_value
+        self.starMapGLWidget.global_opacity = new_value
 
     def computeIntermediateDatasets(self):
         print("Computing intermediate datasets")

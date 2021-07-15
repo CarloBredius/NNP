@@ -1,6 +1,6 @@
 import colorsys
 import math
-from scipy.spatial import ConvexHull, convex_hull_plot_2d
+from scipy.spatial import ConvexHull
 
 from PyQt5.QtWidgets import *
 
@@ -12,19 +12,25 @@ except ImportError:
 class StarMapGLWidget(QOpenGLWidget):
     def initializeGL(self):
         print("Initalize openGL for star map")
-        GL.glClearColor(1.0, 1.0, 1.0, 1.0)
+        # enable the use of transparency
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
         GL.glShadeModel(GL.GL_SMOOTH)
-        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glClearColor(1.0, 1.0, 1.0, 1.0)
+
+        self.pred_list = None
 
         # Configuration options
         self.convex_hull = False
         self.angular_color = True
         self.interpolate_rays = True
+        self.global_opacity = 1
+        self.zoom = 1
 
-        self.zoom = 1.0
-        self.pred_list = None
+        GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
-        GL.glOrtho(1.0 - self.zoom, self.zoom, 1.0 - self.zoom, self.zoom, -1, 1)
+        GL.glOrtho(1 - self.zoom, self.zoom, 1 - self.zoom, self.zoom, -1, 1)
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
     def paintGL(self):
@@ -56,7 +62,7 @@ class StarMapGLWidget(QOpenGLWidget):
                 points.append((pred_list[i][j][0], pred_list[i][j][1]))
 
             brush_color = class_colors[labels[j]]
-            GL.glColor3f(brush_color[0], brush_color[1], brush_color[2])
+            GL.glColor4f(brush_color[0], brush_color[1], brush_color[2], self.global_opacity)
 
             # Create list of convex hull indices
             hull_indices = []
@@ -97,11 +103,11 @@ class StarMapGLWidget(QOpenGLWidget):
 
                 GL.glBegin(GL.GL_LINES)
                 if self.interpolate_rays:
-                    GL.glColor3f(1, 1, 1)
+                    GL.glColor4f(1, 1, 1, self.global_opacity)
                 else:
-                    GL.glColor3f(brush_color[0], brush_color[1], brush_color[2])
+                    GL.glColor4f(brush_color[0], brush_color[1], brush_color[2], self.global_opacity)
                 GL.glVertex2f(base_point[0], base_point[1])
-                GL.glColor3f(brush_color[0], brush_color[1], brush_color[2])
+                GL.glColor4f(brush_color[0], brush_color[1], brush_color[2], self.global_opacity)
                 GL.glVertex2f(ray_edge[0], ray_edge[1])
                 GL.glEnd()
 

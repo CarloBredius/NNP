@@ -10,18 +10,24 @@ except ImportError:
 class TrailsGLWidget(QOpenGLWidget):
     def initializeGL(self):
         print("Initalize openGL for trail map")
-        # enable the use of transparency
+        # Enable the use of transparency
         GL.glEnable(GL.GL_BLEND)
-        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
+        GL.glShadeModel(GL.GL_SMOOTH)
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
+
         self.pred_list = None
+
+        # Configuration options
         self.angular_color = False
         self.max_line_thickness = 5
+        self.global_opacity = 1
         self.rotX = 0
         self.rotY = 0
         self.zoomFlag = False
-        self.zoom = 1.0
-        GL.glShadeModel(GL.GL_FLAT)
+        self.zoom = 1
+
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
         GL.glOrtho(1.0 - self.zoom, self.zoom, 1.0 - self.zoom, self.zoom, -1, 1)
@@ -88,7 +94,7 @@ class TrailsGLWidget(QOpenGLWidget):
                     # Normalize theta with 1/2π
                     brush_color = colorsys.hsv_to_rgb(theta * 0.15915494309189533576888376337251, 1, 1)
 
-                GL.glColor4f(brush_color[0],  brush_color[1], brush_color[2], counter * opacity_stepsize)
+                GL.glColor4f(brush_color[0],  brush_color[1], brush_color[2], counter * opacity_stepsize * self.global_opacity)
                 # OpenGL needs a start and an endpoint, hence why some points will be added twice
                 GL.glBegin(GL.GL_LINES)
                 GL.glVertex2f(p1[0], p1[1])
