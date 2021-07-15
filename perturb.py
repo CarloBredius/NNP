@@ -16,6 +16,7 @@ class Dataset:
         self.scaleDimAmount = 0
         self.local_scale_value = 1
         self.global_scale_value = 1
+        self.permuteDims = []
         self.nonActiveDims = []
 
         print("Dataset object created")
@@ -40,6 +41,17 @@ class Dataset:
         # Scale the difference and add to original
         self.perturbed = self.raw + self.global_scale_value * delta
 
+        # For each dimension, randomly choose another dimension to switch values with
+        for i in self.permuteDims:
+            # Make sure not the same index is picked
+            j = i
+            while i == j:
+                j = random.randint(0, len(self.raw[0]) - 1)
+
+            tmp = self.perturbed[:, i]
+            self.perturbed[:, i] = self.perturbed[:, j]
+            self.perturbed[:, j] = tmp
+
         # Handle non-active dimensions
         for i in self.nonActiveDims:
             self.perturbed[:, i] = 0
@@ -60,6 +72,7 @@ class Dataset:
             dimension_list = dimension_list[:len(dimension_list) - numberToRemove]
         return dimension_list
 
+    # Add a constant value to randomly chosen dimensions
     def translation(self, amount, dims):
         # Choose random dimensions to translate
         self.translateDimAmount = dims
@@ -68,6 +81,7 @@ class Dataset:
         self.translate_value = 0.01 * amount
         self.combinePerturbations()
 
+    # Scale randomly chosen dimensions
     def scale(self, amount, dims):
         # Choose random dimensions on which to scale
         self.scaleDimAmount = dims
@@ -76,8 +90,14 @@ class Dataset:
         self.local_scale_value = 0.01 * amount
         self.combinePerturbations()
 
+    # Randomly choose 2 dimensions and switch their values
+    def permute(self, amount):
+        self.permuteDims = self.adjustRandomDimensions(amount, self.permuteDims)
+
+        self.combinePerturbations()
+
+    # Randomly set dimensions to non-active
     def removeRandomDimensions(self, amount):
-        # choose random dimensions to set non-active
         self.nonActiveDims = self.adjustRandomDimensions(amount, self.nonActiveDims)
 
         self.combinePerturbations()
@@ -122,6 +142,8 @@ class Dataset:
             elif perturbation == 6:
                 self.scaleAllPerturbations(maxValue - i)
             elif perturbation == 7:
+                self.permute(maxValue)
+            elif perturbation == 8:
                 self.removeRandomDimensions(i)
             else:
                 print("No perturbation found with index " + str(i))
