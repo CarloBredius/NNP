@@ -754,6 +754,9 @@ class Ui_MainWindow(object):
         if self.globalScaleCheckbox.isChecked():
             self.globalScaleSlider.setValue(randint(0, self.globalScaleSlider.maximum()))
 
+        if self.permuteCheckbox.isChecked():
+            self.permuteSlider.setValue(randint(0, self.permuteSlider.maximum()))
+
         if self.dimRemovalCheckbox.isChecked():
             self.dimRemovalSlider.setValue(randint(0, self.dimRemovalSlider.maximum()))
 
@@ -773,6 +776,9 @@ class Ui_MainWindow(object):
 
         if self.globalScaleCheckbox.isChecked():
             self.globalScaleSlider.setValue(100)
+
+        if self.permuteCheckbox.isChecked():
+            self.permuteSlider.setValue(0)
 
         if self.dimRemovalCheckbox.isChecked():
             self.dimRemovalSlider.setValue(0)

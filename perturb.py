@@ -28,9 +28,8 @@ class Dataset:
         for i in self.translateDims:
             intermediate[:, i] += self.translate_value
 
-        # TODO: Normalize instead of clipping
-        # Handle jitter and clipped to be between 0 and 1
-        intermediate = np.clip(intermediate + self.jitter, 0, 1)
+        # Handle jitter
+        intermediate += self.jitter
 
         # Handle local scaling
         for i in self.scaleDims:
@@ -39,7 +38,12 @@ class Dataset:
         # Compute the difference with the original
         delta = intermediate - self.raw
         # Scale the difference and add to original
-        self.perturbed = self.raw + self.global_scale_value * delta
+        intermediate = self.raw + self.global_scale_value * delta
+
+        # Normalize array to range (0, 1)
+        arr_max = np.amax(intermediate)
+        arr_min = np.amin(intermediate)
+        self.perturbed = (intermediate - arr_min) / (arr_max - arr_min)
 
         # For each dimension, randomly choose another dimension to switch values with
         for i in self.permuteDims:
