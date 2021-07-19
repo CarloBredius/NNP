@@ -334,8 +334,16 @@ class Ui_MainWindow(object):
         self.starAngularColorCheckbox.setObjectName("angularColorCheckbox")
         self.starAngularColorCheckbox.setVisible(False)
         self.starAngularColorCheckbox.setDisabled(False)
-        self.starAngularColorCheckbox.setChecked(True)
         self.starAngularColorCheckbox.stateChanged.connect(self.starAngularColorCheckboxChanged)
+
+        self.starEigenColorCheckbox = QCheckBox(self.centralwidget)
+        self.starEigenColorCheckbox.setGeometry(QRect(930, 420, 120, 30))
+        self.starEigenColorCheckbox.setTristate(False)
+        self.starEigenColorCheckbox.setObjectName("starEigenColorCheckbox")
+        self.starEigenColorCheckbox.setVisible(False)
+        self.starEigenColorCheckbox.setDisabled(False)
+        self.starEigenColorCheckbox.setChecked(True)
+        self.starEigenColorCheckbox.stateChanged.connect(self.starEigenColorCheckboxChanged)
 
         self.interpolateColorCheckbox = QCheckBox(self.centralwidget)
         self.interpolateColorCheckbox.setGeometry(QRect(830, 440, 120, 30))
@@ -439,6 +447,7 @@ class Ui_MainWindow(object):
         self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
         self.convexHullCheckbox.setText(_translate("MainWindow", "Convex hull"))
         self.starAngularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
+        self.starEigenColorCheckbox.setText(_translate("MainWindow", "Eigen color"))
         self.interpolateColorCheckbox.setText(_translate("MainWindow", "Interpolate color"))
         self.globalOpacitySliderLabel.setText(_translate("MainWindow", "Global opacity"))
 
@@ -550,18 +559,20 @@ class Ui_MainWindow(object):
             self.computeButton.setVisible(True)
             self.convexHullCheckbox.setVisible(True)
             self.starAngularColorCheckbox.setVisible(True)
+            self.starEigenColorCheckbox.setVisible(True)
             self.interpolateColorCheckbox.setVisible(True)
             self.globalOpacitySliderLabel.setVisible(True)
             self.globalOpacitySlider.setVisible(True)
-            if not self.convexHullCheckbox.isChecked():
-                self.starAngularColorCheckbox.setDisabled(False)
-                self.interpolateColorCheckbox.setDisabled(False)
-            else:
+            if self.convexHullCheckbox.isChecked() or self.starEigenColorCheckbox.isChecked():
                 self.starAngularColorCheckbox.setDisabled(True)
                 self.interpolateColorCheckbox.setDisabled(True)
+            else:
+                self.starAngularColorCheckbox.setDisabled(False)
+                self.interpolateColorCheckbox.setDisabled(False)
         else:
             self.convexHullCheckbox.setVisible(False)
             self.starAngularColorCheckbox.setVisible(False)
+            self.starEigenColorCheckbox.setVisible(False)
             self.interpolateColorCheckbox.setVisible(False)
 
     def computeVisualization(self):
@@ -611,12 +622,16 @@ class Ui_MainWindow(object):
         # Perturb using the checked perturbation
         if checked_button_index == 1:
             max_value = self.translationAmountSlider.value()
+            self.dataset.translateDimAmount = self.translationDimensionSlider.value()
         elif checked_button_index == 2:
             max_value = self.translationDimensionSlider.value()
+            self.dataset.translate_value = self.translationAmountSlider.value()
         elif checked_button_index == 3:
             max_value = self.scaleAmountSlider.value()
+            self.dataset.scaleDimAmount = self.scaleDimensionSlider.value()
         elif checked_button_index == 4:
             max_value = self.scaleDimensionSlider.value()
+            self.dataset.local_scale_value = self.scaleAmountSlider.value()
         elif checked_button_index == 5:
             max_value = self.jitterSlider.value()
         elif checked_button_index == 6:
@@ -727,12 +742,20 @@ class Ui_MainWindow(object):
 
     def convexHullCheckboxChanged(self, state):
         state = (state == Qt.Checked)
-        self.interpolateColorCheckbox.setDisabled(state)
-        self.starAngularColorCheckbox.setDisabled(state)
+        if not self.starEigenColorCheckbox.isChecked():
+            self.interpolateColorCheckbox.setDisabled(state)
+            self.starAngularColorCheckbox.setDisabled(state)
         self.starMapGLWidget.convex_hull = state
 
     def starAngularColorCheckboxChanged(self, state):
         self.starMapGLWidget.angular_color = (state == Qt.Checked)
+
+    def starEigenColorCheckboxChanged(self, state):
+        state = (state == Qt.Checked)
+        if not self.convexHullCheckbox.isChecked():
+            self.interpolateColorCheckbox.setDisabled(state)
+            self.starAngularColorCheckbox.setDisabled(state)
+        self.starMapGLWidget.eigen_color = state
 
     def interpolateColorCheckboxChanged(self, state):
         self.starMapGLWidget.interpolate_rays = (state == Qt.Checked)

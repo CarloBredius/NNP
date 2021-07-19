@@ -1,5 +1,6 @@
 import colorsys
 import math
+import numpy as np
 from scipy.spatial import ConvexHull
 
 from PyQt5.QtWidgets import *
@@ -23,7 +24,8 @@ class StarMapGLWidget(QOpenGLWidget):
 
         # Configuration options
         self.convex_hull = False
-        self.angular_color = True
+        self.angular_color = False
+        self.eigen_color = True
         self.interpolate_rays = True
         self.global_opacity = 1
         self.zoom = 1
@@ -49,6 +51,28 @@ class StarMapGLWidget(QOpenGLWidget):
     def emptyScreen(self):
         print("Display empty star map screen")
 
+    # Determine color with hue and saturation computed through Eigen values and eccentricity
+    def pcaColors(self, point_cloud):
+        # Convert point cloud to covariance matrix
+        cov_matrix = np.cov(np.array(point_cloud).T)
+
+        # Compute Eigen values en vectors
+        eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
+
+        # Combine and order on eigen values
+        eigen_list = [(x, y) for x, y in sorted(zip(eigenvalues, eigenvectors), reverse=True)]
+
+        # Determine hue using the longest Eigenvector
+        longest_eigenvector = eigen_list[0][1]
+        theta = math.atan2(longest_eigenvector[0], longest_eigenvector[1]) + math.pi
+        # Interpolate over pi for half the color wheel (mirrored is not used)
+        hue = theta * 0.31830988618379067153776752674503
+
+        # Determine saturation using eccentricity (Longest eigenvalue/ 2nd longest eigenvalue)
+        # TODO: normalize saturation
+        saturation = eigen_list[0][0] / eigen_list[1][0]
+        return colorsys.hsv_to_rgb(hue, 1, 1)
+
     def paintConvexStarMapGL(self, pred_list, labels, class_colors):
         self.pred_list = pred_list
         self.labels = labels
@@ -56,12 +80,16 @@ class StarMapGLWidget(QOpenGLWidget):
 
         # Loop over every spot
         for j in range(len(pred_list[0])):
-            # fill list for the spots point cloud
+            # Fill list for point cloud
             points = []
             for i in range(len(pred_list) - 1):
                 points.append((pred_list[i][j][0], pred_list[i][j][1]))
 
-            brush_color = class_colors[labels[j]]
+            if self.eigen_color:
+                brush_color = self.pcaColors(points)
+            else:
+                brush_color = class_colors[labels[j]]
+
             GL.glColor4f(brush_color[0], brush_color[1], brush_color[2], self.global_opacity)
 
             # Create list of convex hull indices
@@ -90,6 +118,14 @@ class StarMapGLWidget(QOpenGLWidget):
         # Loop over every spot
         for j in range(len(pred_list[0])):
             brush_color = class_colors[labels[j]]
+            if self.eigen_color:
+                # Fill list for point cloud
+                points = []
+                for i in range(len(pred_list) - 1):
+                    points.append((pred_list[i][j][0], pred_list[i][j][1]))
+                brush_color = self.pcaColors(points)
+
+
             base_point = pred_list[0][j]
             # Loop over every location of the spot, skip the first step
             for i in range(1, len(pred_list) - 1):

@@ -88,7 +88,7 @@ class Dataset:
     # Scale randomly chosen dimensions
     def scale(self, amount, dims):
         # Choose random dimensions on which to scale
-        self.scaleDimAmount = dims
+        #self.scaleDimAmount = dims
         self.scaleDims = self.adjustRandomDimensions(dims, self.scaleDims)
 
         self.local_scale_value = 0.01 * amount
