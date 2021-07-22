@@ -59,7 +59,7 @@ class StarMapGLWidget(QOpenGLWidget):
         # Compute Eigen values en vectors
         eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
 
-        # Combine and order on eigen values
+        # Combine and order on longest Eigen values
         eigen_list = [(x, y) for x, y in sorted(zip(eigenvalues, eigenvectors), reverse=True)]
 
         # Determine hue using the longest Eigenvector
@@ -70,8 +70,8 @@ class StarMapGLWidget(QOpenGLWidget):
 
         # Determine saturation using eccentricity (Longest eigenvalue/ 2nd longest eigenvalue)
         # TODO: normalize saturation
-        saturation = eigen_list[0][0] / eigen_list[1][0]
-        return colorsys.hsv_to_rgb(hue, 1, 1)
+        saturation = np.clip(eigen_list[0][0] / (10 * eigen_list[1][0]), 0.1, 1)
+        return colorsys.hsv_to_rgb(hue, saturation, 1)
 
     def paintConvexStarMapGL(self, pred_list, labels, class_colors):
         self.pred_list = pred_list

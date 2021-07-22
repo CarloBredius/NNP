@@ -79,7 +79,6 @@ class Dataset:
     # Add a constant value to randomly chosen dimensions
     def translation(self, amount, dims):
         # Choose random dimensions to translate
-        self.translateDimAmount = dims
         self.translateDims = self.adjustRandomDimensions(dims, self.translateDims)
 
         self.translate_value = 0.01 * amount
@@ -88,7 +87,6 @@ class Dataset:
     # Scale randomly chosen dimensions
     def scale(self, amount, dims):
         # Choose random dimensions on which to scale
-        #self.scaleDimAmount = dims
         self.scaleDims = self.adjustRandomDimensions(dims, self.scaleDims)
 
         self.local_scale_value = 0.01 * amount
