@@ -582,6 +582,7 @@ class Ui_MainWindow(object):
         if self.recompute:
             self.statusbar.showMessage("Computing and predicting intermediate data sets per increment...")
             self.computeIntermediateDatasets()
+            self.trailsGLWidget.recompute = True
             self.heatGLWidget.heatmapFilled = False
             self.recompute = False
         else:
@@ -591,7 +592,10 @@ class Ui_MainWindow(object):
         if currentWidgetIndex == 1:
             self.statusbar.showMessage("Drawing trail map...")
             print("Drawing trail map...")
-            self.trailsGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
+            if True:
+                self.trailsGLWidget.paintDifferenceMapGL(self.predList, self.dataset.interDataset)
+            else:
+                self.trailsGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
             self.trailsGLWidget.update()
 
         if currentWidgetIndex == 2:
