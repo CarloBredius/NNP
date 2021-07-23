@@ -283,6 +283,13 @@ class Ui_MainWindow(object):
         self.trailAngularColorCheckbox.setVisible(False)
         self.trailAngularColorCheckbox.stateChanged.connect(self.trailAngularColorCheckboxChanged)
 
+        self.trail2dndColorCheckbox = QCheckBox(self.centralwidget)
+        self.trail2dndColorCheckbox.setGeometry(QRect(930, 410, 120, 30))
+        self.trail2dndColorCheckbox.setTristate(False)
+        self.trail2dndColorCheckbox.setObjectName("trail2dndColorCheckbox")
+        self.trail2dndColorCheckbox.setVisible(False)
+        self.trail2dndColorCheckbox.stateChanged.connect(self.trail2dndColorCheckboxChanged)
+
         self.lineThicknessLabel = QLabel(self.centralwidget)
         self.lineThicknessLabel.setGeometry(QRect(950, 440, 170, 20))
         font = QFont()
@@ -443,6 +450,7 @@ class Ui_MainWindow(object):
         # Configuration labels
         self.configLabel.setText(_translate("MainWindow", "Configuration"))
         self.trailAngularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
+        self.trail2dndColorCheckbox.setText(_translate("MainWindow", "2d/nd color"))
         self.lineThicknessLabel.setText(_translate("MainWindow", "Line thickness"))
         self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
         self.convexHullCheckbox.setText(_translate("MainWindow", "Convex hull"))
@@ -536,12 +544,14 @@ class Ui_MainWindow(object):
             self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Trail map"))
             self.computeButton.setVisible(True)
             self.trailAngularColorCheckbox.setVisible(True)
+            self.trail2dndColorCheckbox.setVisible(True)
             self.lineThicknessLabel.setVisible(True)
             self.lineThicknessSlider.setVisible(True)
             self.globalOpacitySliderLabel.setVisible(True)
             self.globalOpacitySlider.setVisible(True)
         else:
             self.trailAngularColorCheckbox.setVisible(False)
+            self.trail2dndColorCheckbox.setVisible(False)
             self.lineThicknessLabel.setVisible(False)
             self.lineThicknessSlider.setVisible(False)
             self.globalOpacitySliderLabel.setVisible(False)
@@ -592,7 +602,7 @@ class Ui_MainWindow(object):
         if currentWidgetIndex == 1:
             self.statusbar.showMessage("Drawing trail map...")
             print("Drawing trail map...")
-            if True:
+            if self.trail2dndColorCheckbox.isChecked():
                 self.trailsGLWidget.paintDifferenceMapGL(self.predList, self.dataset.interDataset)
             else:
                 self.trailsGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
@@ -733,6 +743,9 @@ class Ui_MainWindow(object):
 
     def trailAngularColorCheckboxChanged(self, state):
         self.trailsGLWidget.angular_color = (state == Qt.Checked)
+
+    def trail2dndColorCheckboxChanged(self, state):
+        self.trailsGLWidget.twodnd = (state == Qt.Checked)
 
     def lineThicknessSliderChanged(self):
         new_value = self.lineThicknessSlider.value()
