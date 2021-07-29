@@ -38,7 +38,7 @@ class Dataset:
         # Compute the difference with the original
         delta = intermediate - self.raw
         # Scale the difference and add to original
-        intermediate = self.raw + self.global_scale_value * delta
+        intermediate = self.raw + delta * self.global_scale_value
 
         # Normalize array to range (0, 1)
         arr_max = np.amax(intermediate)

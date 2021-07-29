@@ -121,7 +121,7 @@ class Ui_MainWindow(object):
 
         # Scale
         self.scaleLabel = QLabel(self.centralwidget)
-        self.scaleLabel.setGeometry(QRect(970, 165, 170, 25))
+        self.scaleLabel.setGeometry(QRect(950, 165, 170, 25))
         font = QFont()
         font.setPointSize(10)
         self.scaleLabel.setFont(font)
@@ -425,7 +425,7 @@ class Ui_MainWindow(object):
         self.translationDimensionRadioButton.setText(_translate("MainWindow", "Dimensions"))
         self.translationDimensionCheckbox.setText(_translate("MainWindow", "Dimensions"))
 
-        self.scaleLabel.setText(_translate("MainWindow", "Scale"))
+        self.scaleLabel.setText(_translate("MainWindow", "Local scale"))
         self.scaleAmountCheckbox.setText(_translate("MainWindow", "Amount"))
         self.scaleAmountRadioButton.setText(_translate("MainWindow", "Amount"))
         self.scaleDimensionCheckbox.setText(_translate("MainWindow", "Dimensions"))
@@ -667,7 +667,7 @@ class Ui_MainWindow(object):
 
     def replot(self):
         pred = self.model.predict(self.dataset.perturbed)
-        items = pg.ScatterPlotItem(x=pred[:,0], y=pred[:,1], data=np.arange(len(self.dataset.perturbed)),
+        items = pg.ScatterPlotItem(x=pred[:,0], y=pred[:,1], data=self.y_test, #data=np.arange(len(self.dataset.perturbed))
         pen='w', brush=self.brushes, size=10, hoverable=True, hoverPen=pg.mkPen(0, 0, 0, 255))
         self.plotWidget.clear()
         self.plotWidget.addItem(items)
@@ -686,7 +686,7 @@ class Ui_MainWindow(object):
 
     def translationDimentionsChanged(self):
         new_value = self.translationDimensionSlider.value()
-        self.statusbar.showMessage("Changed translation perturbation: number of random dimensions to " + str(new_value))
+        self.statusbar.showMessage("Changed translation perturbation: percentage of random dimensions to " + str(new_value))
         self.recompute = True
 
         if self.stackedWidget.currentIndex() == 0:
@@ -695,7 +695,7 @@ class Ui_MainWindow(object):
 
     def scaleAmountChanged(self):
         new_value = self.scaleAmountSlider.value()
-        self.statusbar.showMessage("Changed scale perturbation: number of random dimensions to " + str(new_value))
+        self.statusbar.showMessage("Changed scale perturbation: percentage of random dimensions to " + str(new_value))
         self.recompute = True
         if self.stackedWidget.currentIndex() == 0:
             self.dataset.scale(new_value, self.scaleDimensionSlider.value())

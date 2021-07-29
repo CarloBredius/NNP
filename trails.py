@@ -26,7 +26,6 @@ class TrailsGLWidget(QOpenGLWidget):
 
         # Configuration options
         self.twodnd = False
-
         self.angular_color = False
         self.max_line_thickness = 5
         self.global_opacity = 1
