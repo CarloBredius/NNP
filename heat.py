@@ -16,6 +16,7 @@ class HeatGLWidget(QOpenGLWidget):
         self.heat_map = None
         self.heatmapFilled = False
         self.data = None
+        self.kde_radius = 20
         self.maxInterpValue = 1.0
         self.max_heat = 0
         self.rotX = 0
@@ -73,7 +74,7 @@ class HeatGLWidget(QOpenGLWidget):
     def computeHeat(self, point):
         x = point[0]
         y = point[1]
-        amount = self.findnearestneighbours((x, y), 20)
+        amount = self.findnearestneighbours((x, y), self.kde_radius)
         if amount > self.max_heat:
             self.max_heat = amount
         return point, amount
@@ -124,14 +125,15 @@ class HeatGLWidget(QOpenGLWidget):
         print("Display empty heat map screen")
 
     def fillHeatBuffer(self):
+        print("Filling 1D heat buffer...")
         # Create 1D data buffer with with white color as base
         self.data = [255 for _ in range(0, self.height() * self.width() * 3)]
-        heat_per_amount = 255 / self.max_heat
+        heat_per_amount = 255 / (self.max_heat * self.maxInterpValue)
         for i in range(self.width()):
             for j in range(self.height()):
                 if self.heat_map[i][j] > 0:
                     loc = int(3 * (i + j * self.width()))
-                    interp_heat = 255 - int(self.heat_map[i][j] * heat_per_amount)
+                    interp_heat = max(255 - int(self.heat_map[i][j] * heat_per_amount), 0)
                     #self.data[loc] = 255
                     self.data[loc + 1] = interp_heat
                     self.data[loc + 2] = interp_heat

@@ -310,8 +310,26 @@ class Ui_MainWindow(object):
         self.lineThicknessSlider.setVisible(False)
 
         # Heat map options
+        self.heatmapRadiusSliderLabel = QLabel(self.centralwidget)
+        self.heatmapRadiusSliderLabel.setGeometry(QRect(970, 410, 170, 20))
+        font = QFont()
+        font.setPointSize(10)
+        self.heatmapRadiusSliderLabel.setFont(font)
+        self.heatmapRadiusSliderLabel.setObjectName("heatmapRadiusSliderLabel")
+        self.heatmapRadiusSliderLabel.setVisible(False)
+
+        self.heatmapRadiusSlider = QSlider(self. centralwidget)
+        self.heatmapRadiusSlider.setGeometry(QRect(870, 440, 270, 20))
+        self.heatmapRadiusSlider.setMaximum(99)
+        self.heatmapRadiusSlider.setValue(20)
+        self.heatmapRadiusSlider.setOrientation(Qt.Horizontal)
+        self.heatmapRadiusSlider.setInvertedAppearance(False)
+        self.heatmapRadiusSlider.setObjectName("heatmapRadiusSlider")
+        self.heatmapRadiusSlider.valueChanged.connect(self.heatmapRadiusSliderChanged)
+        self.heatmapRadiusSlider.setVisible(False)
+
         self.heatmapInterpSliderLabel = QLabel(self.centralwidget)
-        self.heatmapInterpSliderLabel.setGeometry(QRect(930, 410, 170, 20))
+        self.heatmapInterpSliderLabel.setGeometry(QRect(930, 480, 170, 20))
         font = QFont()
         font.setPointSize(10)
         self.heatmapInterpSliderLabel.setFont(font)
@@ -319,8 +337,10 @@ class Ui_MainWindow(object):
         self.heatmapInterpSliderLabel.setVisible(False)
 
         self.heatmapInterpSlider = QSlider(self. centralwidget)
-        self.heatmapInterpSlider.setGeometry(QRect(870, 440, 270, 20))
-        self.heatmapInterpSlider.setMaximum(99)
+        self.heatmapInterpSlider.setGeometry(QRect(870, 510, 270, 20))
+        self.heatmapInterpSlider.setMinimum(1)
+        self.heatmapInterpSlider.setMaximum(100)
+        self.heatmapInterpSlider.setValue(100)
         self.heatmapInterpSlider.setOrientation(Qt.Horizontal)
         self.heatmapInterpSlider.setInvertedAppearance(False)
         self.heatmapInterpSlider.setObjectName("heatmapInterpSlider")
@@ -452,6 +472,7 @@ class Ui_MainWindow(object):
         self.trailAngularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
         self.trail2dndColorCheckbox.setText(_translate("MainWindow", "2d/nd color"))
         self.lineThicknessLabel.setText(_translate("MainWindow", "Line thickness"))
+        self.heatmapRadiusSliderLabel.setText(_translate("MainWindow", "Radius"))
         self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
         self.convexHullCheckbox.setText(_translate("MainWindow", "Convex hull"))
         self.starAngularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
@@ -559,9 +580,13 @@ class Ui_MainWindow(object):
         if index == 2:
             self.WidgetTitle.setText(QCoreApplication.translate("MainWindow", "Heat map"))
             self.computeButton.setVisible(True)
+            self.heatmapRadiusSliderLabel.setVisible(True)
+            self.heatmapRadiusSlider.setVisible(True)
             self.heatmapInterpSliderLabel.setVisible(True)
             self.heatmapInterpSlider.setVisible(True)
         else:
+            self.heatmapRadiusSliderLabel.setVisible(False)
+            self.heatmapRadiusSlider.setVisible(False)
             self.heatmapInterpSliderLabel.setVisible(False)
             self.heatmapInterpSlider.setVisible(False)
         if index == 3:
@@ -611,7 +636,8 @@ class Ui_MainWindow(object):
         if currentWidgetIndex == 2:
             self.statusbar.showMessage("Drawing heat map...")
             print("Drawing heat map...")
-            self.heatGLWidget.computeHeatMap(self.predList)
+            if not self.heatGLWidget.heatmapFilled:
+                self.heatGLWidget.computeHeatMap(self.predList)
             self.heatGLWidget.update()
 
         if currentWidgetIndex == 3:
@@ -752,10 +778,16 @@ class Ui_MainWindow(object):
         self.statusbar.showMessage("Interpolate value of heat map changed to " + str(new_value))
         self.trailsGLWidget.max_line_thickness = new_value
 
+    def heatmapRadiusSliderChanged(self):
+        new_value = self.heatmapRadiusSlider.value()
+        self.statusbar.showMessage("Radius value of heat map changed to " + str(new_value))
+        self.heatGLWidget.kde_radius = new_value
+        self.recompute = True
+
     def heatmapInterpSliderChanged(self):
         new_value = self.heatmapInterpSlider.value()
-        self.statusbar.showMessage("Interpolate value of heat map changed to " + str(new_value))
-        self.heatGLWidget.maxInterpValue = 1 - new_value * 0.01
+        self.statusbar.showMessage(f"Max interpolate threshold of heat map changed to {new_value}% of the highest value")
+        self.heatGLWidget.maxInterpValue = new_value * 0.01
 
     def convexHullCheckboxChanged(self, state):
         state = (state == Qt.Checked)
