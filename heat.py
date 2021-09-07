@@ -165,8 +165,3 @@ class HeatGLWidget(QOpenGLWidget):
 
             traversed.append((x, y))
         return traversed
-
-    def printarray(self, array):
-        print("Filled array:")
-        for j in range(len(array[0])):
-            print(str(j) + ": " + str(array[j]))

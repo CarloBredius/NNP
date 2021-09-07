@@ -150,3 +150,8 @@ class Dataset:
             else:
                 print("No perturbation found with index " + str(i))
             self.interDataset.append(self.perturbed)
+
+    def printarray(self, array):
+        print("Filled array:")
+        for j in range(len(array[0])):
+            print(str(j) + ": " + str(array[j]))
