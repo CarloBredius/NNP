@@ -867,9 +867,9 @@ class Ui_MainWindow(object):
 
     def loadData(self, MainWindow):
         print("Loading datasets...")
-        X = np.load('data/X_mnist.npy')
-        y = np.load('data/y_mnist.npy')
-        label = "mnist-full"
+        X = np.load('data/X_fashion.npy')
+        y = np.load('data/y_fashion.npy')
+        label = "fashion-full"
 
         X_train, X_test, y_train, y_test = train_test_split(X, y,train_size=10000, test_size=3000, random_state=420, stratify=y)
         self.y_test = y_test
