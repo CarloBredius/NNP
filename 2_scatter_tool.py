@@ -905,6 +905,7 @@ class Ui_MainWindow(object):
         self.plotWidget.addItem(items)
 
 if __name__ == "__main__":
+    # Set back and foreground for the pyqtgraph widget
     pg.setConfigOption('background', 'w')
     pg.setConfigOption('foreground', 'k')
     app = QApplication(sys.argv)
