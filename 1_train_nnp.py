@@ -27,22 +27,25 @@ y_mnist = np.load('data/y_mnist.npy')
 X_mnist_bin = X_mnist[np.isin(y_mnist, [0, 1])]
 y_mnist_bin = y_mnist[np.isin(y_mnist, [0, 1])]
 
-#X_fashion = np.load('data/X_fashion.npy')
-#y_fashion = np.load('data/y_fashion.npy')
-#X_fashion_bin = X_fashion[np.isin(y_fashion, [0, 9])]
-#y_fashion_bin = y_fashion[np.isin(y_fashion, [0, 9])]
+X_fashion = np.load('data/X_fashion.npy')
+y_fashion = np.load('data/y_fashion.npy')
+X_fashion_bin = X_fashion[np.isin(y_fashion, [0, 9])]
+y_fashion_bin = y_fashion[np.isin(y_fashion, [0, 9])]
 
 #X_dogsandcats = np.load('data/X_dogsandcats.npy')
 #y_dogsandcats = np.load('data/y_dogsandcats.npy')
 
 print("Loading datasets complete")
 
-for label, X, y, p_tsne in zip(['mnist-bin', 'mnist-full'],
+for label, X, y, p_tsne in zip(#['fashion_mnist-bin', 'fashion_mnist-full'],
+                            ['mnist-bin', 'mnist-full'],
                             [X_mnist_bin, X_mnist],
                             [y_mnist_bin, y_mnist],
-                            [PCA(n_components=2), PCA(n_components=2), PCA(n_components=2), PCA(n_components=2)]):
-                            #[TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4),
-                            #TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4)]):
+                            #[X_fashion_bin, X_fashion],
+                            #[y_fashion_bin, y_fashion],
+                            #[PCA(n_components=2), PCA(n_components=2), PCA(n_components=2), PCA(n_components=2)]):
+                            [TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4),
+                            TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4)]):
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=10000, test_size=3000, random_state=420, stratify=y)
 

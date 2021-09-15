@@ -721,7 +721,7 @@ class Ui_MainWindow(object):
 
     def scaleAmountChanged(self):
         new_value = self.scaleAmountSlider.value()
-        self.statusbar.showMessage("Changed scale perturbation: percentage of random dimensions to " + str(new_value))
+        self.statusbar.showMessage("Changed scale perturbation: amount to " + str(new_value))
         self.recompute = True
         if self.stackedWidget.currentIndex() == 0:
             self.dataset.scale(new_value, self.scaleDimensionSlider.value())
@@ -729,7 +729,7 @@ class Ui_MainWindow(object):
 
     def scaleDimensionChanged(self):
         new_value = self.scaleDimensionSlider.value()
-        self.statusbar.showMessage("Changed scale perturbation: amount to " + str(new_value))
+        self.statusbar.showMessage("Changed scale perturbation: percentage of random dimensions to " + str(new_value))
         self.recompute = True
         if self.stackedWidget.currentIndex() == 0:
             self.dataset.scale(self.scaleAmountSlider.value(), new_value)
@@ -866,10 +866,14 @@ class Ui_MainWindow(object):
         self.plotWidget.addItem(items)
 
     def loadData(self, MainWindow):
-        print("Loading datasets...")
         X = np.load('data/X_mnist.npy')
         y = np.load('data/y_mnist.npy')
         label = "mnist-full"
+        #X = np.load('data/X_fashion.npy')
+        #y = np.load('data/y_fashion.npy')
+        #label = "fashion_mnist-full"
+        print(f"Loading dataset: {label}")
+        self.statusbar.showMessage(f"Loading dataset: {label}")
 
         X_train, X_test, y_train, y_test = train_test_split(X, y,train_size=10000, test_size=3000, random_state=420, stratify=y)
         self.y_test = y_test

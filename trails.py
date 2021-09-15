@@ -161,10 +161,9 @@ class TrailsGLWidget(QOpenGLWidget):
             # First iteration will put thickness at 1
             line_thickness = 0
             brush_color = class_colors[labels[j]]
-            counter = 0
             # Loop over every location of the spot
             for i in range(len(pred_list) - 1):
-                if counter % thickness_interval == 0:
+                if i % thickness_interval == 0:
                     line_thickness += 1
                     GL.glLineWidth(line_thickness)
 
@@ -175,13 +174,13 @@ class TrailsGLWidget(QOpenGLWidget):
                     # Normalize theta with 1/2π
                     brush_color = colorsys.hsv_to_rgb(theta * 0.15915494309189533576888376337251, 1, 1)
 
-                GL.glColor4f(brush_color[0],  brush_color[1], brush_color[2], counter * opacity_stepsize * self.global_opacity)
                 # OpenGL needs a start and an endpoint, hence why some points will be added twice
                 GL.glBegin(GL.GL_LINES)
+                GL.glColor4f(brush_color[0],  brush_color[1], brush_color[2], i * opacity_stepsize * self.global_opacity)
                 GL.glVertex2f(p1[0], p1[1])
+                GL.glColor4f(brush_color[0],  brush_color[1], brush_color[2], (i + 1) * opacity_stepsize * self.global_opacity)
                 GL.glVertex2f(p2[0], p2[1])
                 GL.glEnd()
-                counter += 1
 
         # Handle translation
         if self.rotX != 0 or self.rotY != 0:

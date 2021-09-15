@@ -56,7 +56,7 @@ class StarMapGLWidget(QOpenGLWidget):
         # Convert point cloud to covariance matrix
         cov_matrix = np.cov(np.array(point_cloud).T)
 
-        # Compute Eigen values en vectors
+        # Compute eigenvalues and -vectors
         eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
 
         # Combine and order on longest Eigen values
@@ -131,6 +131,7 @@ class StarMapGLWidget(QOpenGLWidget):
             for i in range(1, len(pred_list) - 1):
                 ray_edge = pred_list[i][j][0], pred_list[i][j][1]
 
+                # Compute color form hsv color wheel
                 if self.angular_color:
                     dx, dy = base_point[0] - ray_edge[0], base_point[1] - ray_edge[1]
                     theta = math.atan2(dy, dx)
