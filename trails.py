@@ -124,13 +124,13 @@ class TrailsGLWidget(QOpenGLWidget):
         for j in range(len(pred_list[0])):
             # First iteration will put thickness at 1
             line_thickness = 0
-            counter = 0
 
             # Loop over every location of the spot
             for i in range(len(pred_list) - 1):
-                if counter % thickness_interval == 0:
+                if i % thickness_interval == 0:
                     line_thickness += 1
                     GL.glLineWidth(line_thickness)
+
                 p1, p2 = pred_list[i][j], pred_list[i + 1][j]
 
                 # Determine color by using the normalized difference
@@ -145,7 +145,6 @@ class TrailsGLWidget(QOpenGLWidget):
                 GL.glVertex2f(p1[0], p1[1])
                 GL.glVertex2f(p2[0], p2[1])
                 GL.glEnd()
-                counter += 1
 
     def paintTrailMapGL(self, pred_list, labels, class_colors):
         print("Painting trail map")
