@@ -173,7 +173,7 @@ class TrailsGLWidget(QOpenGLWidget):
                     # Normalize theta with 1/2π
                     brush_color = colorsys.hsv_to_rgb(theta * 0.15915494309189533576888376337251, 1, 1)
 
-                # OpenGL needs a start and an endpoint, hence why some points will be added twice
+                # GL_LINES needs a start and an endpoint
                 GL.glBegin(GL.GL_LINES)
                 GL.glColor4f(brush_color[0],  brush_color[1], brush_color[2], i * opacity_stepsize * self.global_opacity)
                 GL.glVertex2f(p1[0], p1[1])

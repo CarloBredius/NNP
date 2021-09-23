@@ -132,6 +132,7 @@ class HeatGLWidget(QOpenGLWidget):
         for i in range(self.width()):
             for j in range(self.height()):
                 if self.heat_map[i][j] > 0:
+                    # Convert 2D coordinates to 1D coordinates
                     loc = int(3 * (i + j * self.width()))
                     interp_heat = max(255 - int(self.heat_map[i][j] * heat_per_amount), 0)
                     #self.data[loc] = 255

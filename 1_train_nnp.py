@@ -8,6 +8,7 @@ import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 
+import umap
 from MulticoreTSNE import MulticoreTSNE as TSNE
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
@@ -32,20 +33,32 @@ y_fashion = np.load('data/y_fashion.npy')
 X_fashion_bin = X_fashion[np.isin(y_fashion, [0, 9])]
 y_fashion_bin = y_fashion[np.isin(y_fashion, [0, 9])]
 
+X_cifar10 = np.load('data/X_cifar10_img.npy')
+y_cifar10 = np.load('data/y_cifar10.npy')
+X_cifar10_bin = X_cifar10[np.isin(y_cifar10, [0, 1])]
+y_cifar10_bin = y_cifar10[np.isin(y_cifar10, [0, 1])]
+
 #X_dogsandcats = np.load('data/X_dogsandcats.npy')
 #y_dogsandcats = np.load('data/y_dogsandcats.npy')
 
 print("Loading datasets complete")
 
-for label, X, y, p_tsne in zip(#['fashion_mnist-bin', 'fashion_mnist-full'],
-                            ['mnist-bin', 'mnist-full'],
+for label, X, y, p_tsne in zip(['mnist-bin', 'mnist-full'],
+                            #['cifar10-bin', 'cifar10-full'],
+                            #['fashion_mnist-bin', 'fashion_mnist-full'],
                             [X_mnist_bin, X_mnist],
                             [y_mnist_bin, y_mnist],
+                            #[X_cifar10_bin, X_cifar10],
+                            #[y_cifar10_bin, y_cifar10],
                             #[X_fashion_bin, X_fashion],
                             #[y_fashion_bin, y_fashion],
                             #[PCA(n_components=2), PCA(n_components=2), PCA(n_components=2), PCA(n_components=2)]):
-                            [TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4),
-                            TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4)]):
+                            [umap.UMAP(n_components=2, random_state=420, n_neighbors=10, min_dist=0.001),
+                            umap.UMAP(n_components=2, random_state=420, n_neighbors=10, min_dist=0.001),
+                            umap.UMAP(n_components=2, random_state=420, n_neighbors=5, min_dist=0.3),
+                            umap.UMAP(n_components=2, random_state=420, n_neighbors=5, min_dist=0.3)]):
+                            #[TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4),
+                            #TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4)]):
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=10000, test_size=3000, random_state=420, stratify=y)
 

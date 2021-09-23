@@ -284,7 +284,7 @@ class Ui_MainWindow(object):
         self.trailAngularColorCheckbox.stateChanged.connect(self.trailAngularColorCheckboxChanged)
 
         self.trail2dndColorCheckbox = QCheckBox(self.centralwidget)
-        self.trail2dndColorCheckbox.setGeometry(QRect(930, 410, 120, 30))
+        self.trail2dndColorCheckbox.setGeometry(QRect(930, 410, 140, 30))
         self.trail2dndColorCheckbox.setTristate(False)
         self.trail2dndColorCheckbox.setObjectName("trail2dndColorCheckbox")
         self.trail2dndColorCheckbox.setVisible(False)
@@ -470,7 +470,7 @@ class Ui_MainWindow(object):
         # Configuration labels
         self.configLabel.setText(_translate("MainWindow", "Configuration"))
         self.trailAngularColorCheckbox.setText(_translate("MainWindow", "Angular color"))
-        self.trail2dndColorCheckbox.setText(_translate("MainWindow", "2d/nd color"))
+        self.trail2dndColorCheckbox.setText(_translate("MainWindow", "Distance distortion color"))
         self.lineThicknessLabel.setText(_translate("MainWindow", "Line thickness"))
         self.heatmapRadiusSliderLabel.setText(_translate("MainWindow", "Radius"))
         self.heatmapInterpSliderLabel.setText(_translate("MainWindow", "Interpolate threshold"))
@@ -872,6 +872,9 @@ class Ui_MainWindow(object):
         #X = np.load('data/X_fashion.npy')
         #y = np.load('data/y_fashion.npy')
         #label = "fashion_mnist-full"
+        #X = np.load('data/X_cifar10_img.npy')
+        #y = np.load('data/y_cifar10.npy')
+        #label = "cifar10-full"
         print(f"Loading dataset: {label}")
         self.statusbar.showMessage(f"Loading dataset: {label}")
 
