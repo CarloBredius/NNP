@@ -38,6 +38,8 @@ class Ui_MainWindow(object):
         # Plot widget
         self.plotWidget = PlotWidget(self.centralwidget)
         self.plotWidget.setObjectName("PlotWidget")
+        self.plotWidget.getPlotItem().hideAxis('bottom')
+        self.plotWidget.getPlotItem().hideAxis('left')
 
         # trails widget using OpenGL
         self.trailsGLWidget = TrailsGLWidget()
@@ -866,19 +868,19 @@ class Ui_MainWindow(object):
         self.plotWidget.addItem(items)
 
     def loadData(self, MainWindow):
-        X = np.load('data/X_mnist.npy')
-        y = np.load('data/y_mnist.npy')
-        label = "mnist-full"
+        #X = np.load('data/X_mnist.npy')
+        #y = np.load('data/y_mnist.npy')
+        #label = "mnist-full"
         #X = np.load('data/X_fashion.npy')
         #y = np.load('data/y_fashion.npy')
         #label = "fashion_mnist-full"
-        #X = np.load('data/X_cifar10_img.npy')
-        #y = np.load('data/y_cifar10.npy')
-        #label = "cifar10-full"
+        X = np.load('data/X_cifar10_densenet.npy')
+        y = np.load('data/y_cifar10.npy')
+        label = "cifar10-full"
         print(f"Loading dataset: {label}")
         self.statusbar.showMessage(f"Loading dataset: {label}")
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y,train_size=10000, test_size=3000, random_state=420, stratify=y)
+        X_train, X_test, y_train, y_test = train_test_split(X, y,train_size=9000, test_size=3000, random_state=420, stratify=y)
         self.y_test = y_test
 
         # Class colors

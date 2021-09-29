@@ -49,11 +49,11 @@ def process_cifar10():
     y = np.hstack((y_test, y_train))
     X = X / 255.0
 
-    X = X[np.isin(y, [1, 5])]
-    y = y[np.isin(y, [1, 5])]
+    #X = X[np.isin(y, [1, 5])]
+    #y = y[np.isin(y, [1, 5])]
 
-    y[y==5] = 0 #dogs
-    y[y==1] = 1 #automobiles
+    #y[y==5] = 0 #dogs
+    #y[y==1] = 1 #automobiles
     
     model = applications.densenet.DenseNet201(include_top=False, weights='imagenet', input_shape=(32, 32, 3), pooling='max')
     X_new = model.predict(X, verbose=1, batch_size=512)
