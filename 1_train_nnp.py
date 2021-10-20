@@ -33,23 +33,20 @@ y_mnist_bin = y_mnist[np.isin(y_mnist, [0, 1])]
 #X_fashion_bin = X_fashion[np.isin(y_fashion, [0, 9])]
 #y_fashion_bin = y_fashion[np.isin(y_fashion, [0, 9])]
 
-X_cifar10 = np.load('data/X_cifar10_densenet.npy')
-y_cifar10 = np.load('data/y_cifar10.npy')
-X_cifar10_bin = X_cifar10[np.isin(y_cifar10, [0, 1])]
-y_cifar10_bin = y_cifar10[np.isin(y_cifar10, [0, 1])]
-
-#X_dogsandcats = np.load('data/X_dogsandcats.npy')
-#y_dogsandcats = np.load('data/y_dogsandcats.npy')
+#X_reuters = np.load('data/X_reuters.npy')
+#y_reuters = np.load('data/y_reuters.npy')
+#X_reuters_bin = X_reuters[np.isin(y_reuters, [0, 1])]
+#y_reuters_bin = y_reuters[np.isin(y_reuters, [0, 1])]
 
 print("Loading datasets complete")
 
-for label, X, y, p_tsne in zip(#['mnist-bin', 'mnist-full'],
-                            ['cifar10-bin', 'cifar10-full'],
+for label, X, y, p in zip(['mnist-bin', 'mnist-full'],
+                            #['reuters-bin', 'reuters-full'],
                             #['fashion_mnist-bin', 'fashion_mnist-full'],
-                            #[X_mnist_bin, X_mnist],
-                            #[y_mnist_bin, y_mnist],
-                            [X_cifar10_bin, X_cifar10],
-                            [y_cifar10_bin, y_cifar10],
+                            [X_mnist_bin, X_mnist],
+                            [y_mnist_bin, y_mnist],
+                            #[X_reuters_bin, X_reuters],
+                            #[y_reuters_bin, y_reuters],
                             #[X_fashion_bin, X_fashion],
                             #[y_fashion_bin, y_fashion],
                             #[PCA(n_components=2), PCA(n_components=2), PCA(n_components=2), PCA(n_components=2)]):
@@ -60,13 +57,10 @@ for label, X, y, p_tsne in zip(#['mnist-bin', 'mnist-full'],
                             [TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4),
                             TSNE(n_components=2, random_state=420, perplexity=25.0, n_iter=3000, n_iter_without_progress=300, n_jobs=4)]):
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=9000, test_size=3000, random_state=420, stratify=y)
-
-    p = p_tsne
-    train_size = 8000
+    X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=10000, test_size=3000, random_state=420, stratify=y)
 
     # A subset is taken to randomize the training a little
-    X_train_p, _, y_train_p, _ = train_test_split(X_train, y_train, train_size=train_size, random_state=420, stratify=y_train)
+    X_train_p, _, y_train_p, _ = train_test_split(X_train, y_train, train_size=9000, random_state=420, stratify=y_train)
     print("Start seed using " + str(p) + "...")
     t0 = perf_counter()
     X_2d = project(X_train_p, p)
@@ -74,14 +68,14 @@ for label, X, y, p_tsne in zip(#['mnist-bin', 'mnist-full'],
     print("Seeding done in " + str(seed_elapsed_time) + " seconds")
 
     # Create example plot using the chosen projection function
-    X_new = project(X_test, p)
-    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-    fig.tight_layout()
-    for x, c in enumerate(np.unique(y_test)):
-        ax.axis('off')
-        ax.scatter(X_new[y_test==c,0],  X_new[y_test==c,1],  c=cmap(x), s=15, label=c, alpha=0.7)
+    #X_new = project(X_test, p)
+    #fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    #fig.tight_layout()
+    #for x, c in enumerate(np.unique(y_test)):
+    #    ax.axis('off')
+    #    ax.scatter(X_new[y_test==c,0],  X_new[y_test==c,1],  c=cmap(x), s=15, label=c, alpha=0.7)
     #plt.show()
-    fig.savefig('Scatterplot_%s_%s.png' % (label, p.__class__.__name__))
+    #fig.savefig('Scatterplot_%s_%s.png' % (label, p.__class__.__name__))
 
     # Data augmentation
     # Todo: "Noise after with sigma = 0.01", ask if this means I offset somewhere in this range or exactly by 0.01 or -0.01?

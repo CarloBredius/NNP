@@ -23,6 +23,7 @@ class TrailsGLWidget(QOpenGLWidget):
         self.diff_list = None
         self.min_diff = 999999
         self.max_diff = 0
+        self.datasttring = [0, 0, 0, 0]
 
         # Configuration options
         self.twodnd = False
@@ -90,6 +91,9 @@ class TrailsGLWidget(QOpenGLWidget):
 
         diff_list = np.zeros((len(pred_list), len(pred_list[0])))
 
+        diff_sum = 0
+        counter = 0
+
         # Compute difference between distances and keep track of max difference
         for j in range(len(inter_dataset[0])):
             for i in range(len(inter_dataset) - 1):
@@ -97,6 +101,8 @@ class TrailsGLWidget(QOpenGLWidget):
                 dist_nd = self.euclideanNd(inter_dataset[i][j], inter_dataset[i + 1][j])
                 diff = dist_2d / dist_nd
                 diff_list[i][j] = diff
+                diff_sum += diff
+                counter += 1
 
                 if diff < self.min_diff:
                     self.min_diff = diff
@@ -104,6 +110,17 @@ class TrailsGLWidget(QOpenGLWidget):
                     self.max_diff = diff
 
         print("Computed distance list")
+        print(f'Min diff: {self.min_diff}, max diff: {self.max_diff}, delta: {self.max_diff - self.min_diff}')
+        # compute average and variance
+        avg = diff_sum / counter
+        sum_squares = 0
+        for j in range(len(inter_dataset[0])):
+            for i in range(len(inter_dataset) - 1):
+                curr_diff = diff_list[i][j]
+                sum_squares += pow(curr_diff - avg,2)
+        variance = sum_squares / counter
+        print(f'Average: {avg}, variance: {variance}')
+        self.datasttring = [self.min_diff, self.max_diff, avg, variance]
         self.diff_list = diff_list
 
     def paintDifferenceMapGL(self, pred_list, inter_dataset):

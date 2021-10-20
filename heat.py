@@ -129,6 +129,7 @@ class HeatGLWidget(QOpenGLWidget):
         # Create 1D data buffer with with white color as base
         self.data = [255 for _ in range(0, self.height() * self.width() * 3)]
         heat_per_amount = 255 / (self.max_heat * self.maxInterpValue)
+        print(f'Max heat: {self.max_heat}')
         for i in range(self.width()):
             for j in range(self.height()):
                 if self.heat_map[i][j] > 0:

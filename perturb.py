@@ -136,7 +136,7 @@ class Dataset:
             elif perturbation == 2:
                 self.translation(self.translate_value, i)
             elif perturbation == 3:
-                self.scale(i, self.scaleDimAmount)
+                self.scale(maxValue - i, self.scaleDimAmount)
             elif perturbation == 4:
                 self.scale(self.local_scale_value, i)
             elif perturbation == 5:

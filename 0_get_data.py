@@ -35,6 +35,44 @@ def unpickle(file):
         dict = pickle.load(fo)
     return dict
 
+def process_reuters():
+    if os.path.exists('data/X_reuters.npy'):
+        return
+
+    (x_train, y_train), (_, _) = kdatasets.reuters.load_data(skip_top=0, test_split=0.0, seed=420)
+    word_index = kdatasets.reuters.get_word_index()
+
+    reverse_word_index = dict([(value, key) for (key, value) in word_index.items()])
+    sentences = {}
+
+    # Choose which classes of the dataset will be used
+    classes = [1, 3, 4, 8, 10, 11, 13, 16, 19, 20, 21]
+
+    for c in classes:
+        print(c, np.sum(y_train == c))
+        x_sentences = x_train[np.where(y_train == c)]
+
+        sentences[c] = []
+
+        for x in x_sentences:
+            decoded_newswire = ' '.join([reverse_word_index.get(i - 3, '?') for i in x])
+            sentences[c].append(decoded_newswire)
+
+    reuters_sentences = []
+    reuters_labels = []
+
+    for c in classes:
+        reuters_sentences += sentences[c]
+        reuters_labels += list(np.repeat(c, len(sentences[c])))
+
+    tfidf = TfidfVectorizer(max_features=5000)
+    lenc = LabelEncoder()
+
+    X_reuters = tfidf.fit_transform(reuters_sentences)
+    X_reuters = X_reuters.todense()
+    y_reuters = lenc.fit_transform(reuters_labels)
+    np.save('data/X_reuters.npy', X_reuters)
+    np.save('data/y_reuters.npy', y_reuters)
 
 def process_cifar10():
     if os.path.exists('data/X_cifar10_img.npy'):

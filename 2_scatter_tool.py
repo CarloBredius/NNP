@@ -322,7 +322,7 @@ class Ui_MainWindow(object):
 
         self.heatmapRadiusSlider = QSlider(self. centralwidget)
         self.heatmapRadiusSlider.setGeometry(QRect(870, 440, 270, 20))
-        self.heatmapRadiusSlider.setMaximum(99)
+        self.heatmapRadiusSlider.setMaximum(50)
         self.heatmapRadiusSlider.setValue(20)
         self.heatmapRadiusSlider.setOrientation(Qt.Horizontal)
         self.heatmapRadiusSlider.setInvertedAppearance(False)
@@ -486,9 +486,9 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuViews.setTitle(_translate("MainWindow", "Views"))
 
-        self.viewsBasic.setText(_translate("MainWindow", "Basic interface"))
+        self.viewsBasic.setText(_translate("MainWindow", "Animation interface"))
         self.viewsBasic.setShortcut(_translate("MainWindow", "Ctrl+1"))
-        self.viewsOpenGL.setText(_translate("MainWindow", "Trails interface"))
+        self.viewsOpenGL.setText(_translate("MainWindow", "Trail map interface"))
         self.viewsOpenGL.setShortcut(_translate("MainWindow", "Ctrl+2"))
         self.viewsHeatmap.setText(_translate("MainWindow", "Heat map interface"))
         self.viewsHeatmap.setShortcut(_translate("MainWindow", "Ctrl+3"))
@@ -631,6 +631,12 @@ class Ui_MainWindow(object):
             print("Drawing trail map...")
             if self.trail2dndColorCheckbox.isChecked():
                 self.trailsGLWidget.paintDifferenceMapGL(self.predList, self.dataset.interDataset)
+                data = self.trailsGLWidget.datasttring
+                min_diff = "{:.6f}".format(data[0])
+                max_diff = "{:.4f}".format(data[1])
+                avg = "{:.4f}".format(data[2])
+                variance = "{:.5f}".format(data[3])
+                self.statusbar.showMessage(f'Minimum difference: {min_diff}, maximum difference: {max_diff}, average: {avg}, variance: {variance}')
             else:
                 self.trailsGLWidget.paintTrailMapGL(self.predList, self.y_test, self.class_colors)
             self.trailsGLWidget.update()
@@ -639,7 +645,9 @@ class Ui_MainWindow(object):
             self.statusbar.showMessage("Drawing heat map...")
             print("Drawing heat map...")
             if not self.heatGLWidget.heatmapFilled:
+                self.heatGLWidget.max_heat = 0
                 self.heatGLWidget.computeHeatMap(self.predList)
+            self.statusbar.showMessage(f"Max heat found: {self.heatGLWidget.max_heat}")
             self.heatGLWidget.update()
 
         if currentWidgetIndex == 3:
@@ -777,7 +785,7 @@ class Ui_MainWindow(object):
 
     def lineThicknessSliderChanged(self):
         new_value = self.lineThicknessSlider.value()
-        self.statusbar.showMessage("Interpolate value of heat map changed to " + str(new_value))
+        self.statusbar.showMessage("Line thickness changed to " + str(new_value))
         self.trailsGLWidget.max_line_thickness = new_value
 
     def heatmapRadiusSliderChanged(self):
@@ -868,19 +876,19 @@ class Ui_MainWindow(object):
         self.plotWidget.addItem(items)
 
     def loadData(self, MainWindow):
-        #X = np.load('data/X_mnist.npy')
-        #y = np.load('data/y_mnist.npy')
-        #label = "mnist-full"
+        X = np.load('data/X_mnist.npy')
+        y = np.load('data/y_mnist.npy')
+        label = "mnist-full"
         #X = np.load('data/X_fashion.npy')
         #y = np.load('data/y_fashion.npy')
         #label = "fashion_mnist-full"
-        X = np.load('data/X_cifar10_densenet.npy')
-        y = np.load('data/y_cifar10.npy')
-        label = "cifar10-full"
+        #X = np.load('data/X_reuters.npy')
+        #y = np.load('data/y_reuters.npy')
+        #label = "reuters-full"
         print(f"Loading dataset: {label}")
         self.statusbar.showMessage(f"Loading dataset: {label}")
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y,train_size=9000, test_size=3000, random_state=420, stratify=y)
+        X_train, X_test, y_train, y_test = train_test_split(X, y,train_size=3000, test_size=3000, random_state=420, stratify=y)
         self.y_test = y_test
 
         # Class colors
