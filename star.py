@@ -69,7 +69,6 @@ class StarMapGLWidget(QOpenGLWidget):
         hue = theta * 0.31830988618379067153776752674503
 
         # Determine saturation using eccentricity (Longest eigenvalue/ 2nd longest eigenvalue)
-        # TODO: normalize saturation
         saturation = np.clip(eigen_list[0][0] / (10 * eigen_list[1][0]), 0.1, 1)
         return colorsys.hsv_to_rgb(hue, saturation, 1)
 

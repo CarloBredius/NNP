@@ -78,7 +78,6 @@ for label, X, y, p in zip(['mnist-bin', 'mnist-full'],
     #fig.savefig('Scatterplot_%s_%s.png' % (label, p.__class__.__name__))
 
     # Data augmentation
-    # Todo: "Noise after with sigma = 0.01", ask if this means I offset somewhere in this range or exactly by 0.01 or -0.01?
     std = 0.01
     r_x_list = np.random.uniform(-std, std, len(X_2d))
     r_y_list = np.random.uniform(-std, std, len(X_2d))

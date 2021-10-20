@@ -44,7 +44,6 @@ class TrailsGLWidget(QOpenGLWidget):
         self.lastPos = event.pos()
 
     def mouseMoveEvent(self, event):
-        # TODO: check which button is pressed
         self.rotX = (event.x() - self.lastPos.x()) * 0.0001
         self.rotY = (event.y() - self.lastPos.y()) * 0.0001
         self.update()

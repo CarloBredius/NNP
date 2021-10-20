@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # embed pyqtgraph in pyqt5: https://www.mfitzp.com/tutorials/embed-pyqtgraph-custom-widgets-qt-app/
-# TODO: All tooltips
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
