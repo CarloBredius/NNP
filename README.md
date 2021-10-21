@@ -1,6 +1,6 @@
 # Visual exploration of the generalization of Neural Network Projections
 A Master thesis by Carlo Bredius.
-
+![trail_map](/trail_map.png)
 An interactive tool that allows the user to perturb the data to explore how it changes the projection inferred through Neural Network Projection. Due to instant feedback in the scatter plot interface, one easily gets a good feeling for how a perturbation changes a projection. Five simple perturbations are implemented, together with four different visualizations and their configurations to explore the changed projections from different angles.
 
 ---
