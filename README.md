@@ -13,7 +13,7 @@ One requires to have at least the following versions:
 - Python packages as follows
 '''pip install scipy scikit-learn scikit-image MulticoreTSNE tensorflow keras keras-applications wget umap-learn joblib pandas numpy matplotlib PyQtGraph
 
-Then one can clone the repository and run the tool.
+Then, one can clone the repository and run the tool.
 
 ---
 ## How to use
