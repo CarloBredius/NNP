@@ -875,15 +875,11 @@ class Ui_MainWindow(object):
         self.plotWidget.addItem(items)
 
     def loadData(self, MainWindow):
+        number_of_samples = sys.argv[1]
         X = np.load('data/X_mnist.npy')
         y = np.load('data/y_mnist.npy')
         label = "mnist-full"
-        #X = np.load('data/X_fashion.npy')
-        #y = np.load('data/y_fashion.npy')
-        #label = "fashion_mnist-full"
-        #X = np.load('data/X_reuters.npy')
-        #y = np.load('data/y_reuters.npy')
-        #label = "reuters-full"
+
         print(f"Loading dataset: {label}")
         self.statusbar.showMessage(f"Loading dataset: {label}")
 
@@ -907,7 +903,7 @@ class Ui_MainWindow(object):
         self.dataset = Dataset(X_test)
 
         print("Loading NNP model...")
-        self.model = keras.models.load_model("NNP_model_" + label)
+        self.model = keras.models.load_model(f"NNP_model_{label}_{number_of_samples}")
 
         pred = self.model.predict(X_test)
         self.brushes = []
