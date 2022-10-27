@@ -63,16 +63,16 @@ print(f"Training complete in {str(epochs)} epochs in {str(train_elapsed_time)} s
 label = "mnist-full"
 model.save(f"NNP_model_{label}_" + str(number_of_samples))
 
-# Predict using model
-X_2d_pred = model.predict(X_test)
-
-# Create scatter-plot using NNP
-fig2, ax2 = plt.subplots(1, 1, figsize=(10, 10))
-fig2.tight_layout()
-for x, c in enumerate(np.unique(y_train_p)):
-	print(c)
-	print(x)
-
-	ax2.axis('off')
-	ax2.scatter(X_2d_pred[y_test==c,0],  X_2d_pred[y_test==c,1],  c=cmap(x), s=15, label=c, alpha=0.7)
-fig2.savefig(f"projection_{label}_{str(number_of_samples)}.png")
+## Predict using model
+#X_2d_pred = model.predict(X_test)
+#
+## Create scatter-plot using NNP
+#fig2, ax2 = plt.subplots(1, 1, figsize=(10, 10))
+#fig2.tight_layout()
+#for x, c in enumerate(np.unique(y_train_p)):
+#	print(c)
+#	print(x)
+#
+#	ax2.axis('off')
+#	ax2.scatter(X_2d_pred[y_test==c,0],  X_2d_pred[y_test==c,1],  c=cmap(x), s=15, label=c, alpha=0.7)
+#fig2.savefig(f"projection_{label}_{str(number_of_samples)}.png")
