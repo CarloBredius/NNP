@@ -25,8 +25,6 @@ cmap = plt.get_cmap('tab10')
 print("Loading datasets...")
 X_mnist = np.load('data/X_mnist.npy')
 y_mnist = np.load('data/y_mnist.npy')
-X_mnist_bin = X_mnist[np.isin(y_mnist, [0, 1])]
-y_mnist_bin = y_mnist[np.isin(y_mnist, [0, 1])]
 
 #X_fashion = np.load('data/X_fashion.npy')
 #y_fashion = np.load('data/y_fashion.npy')
